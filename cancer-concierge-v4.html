@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>がんコンシェルジュ v4</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg:#f8f6f2; --sf:#fff; --sf2:#f2eeea; --br:#e5ded5;
+  --tx:#26211c; --mu:#8a7d72; --lt:#b5a99e;
+  --p0:#c43a08; --p0l:#fff3ef; --p0b:rgba(196,58,8,.15);
+  --p1:#1a5fbf; --p1l:#edf3ff; --p1b:rgba(26,95,191,.15);
+  --p2:#b85c00; --p2l:#fff7ed; --p2b:rgba(184,92,0,.15);
+  --p3:#1a7a5a; --p3l:#edfaf4; --p3b:rgba(26,122,90,.15);
+  --tl:#1a7a5a; --tll:#edfaf4;
+  --pk:#7a2020; --pkl:#fff0f0;
+  --pu:#5020a0; --pul:#f5f0ff;
+  --r:12px; --sh:0 2px 16px rgba(38,33,28,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);font-family:'Noto Sans JP',sans-serif;font-size:15px;line-height:1.7;min-height:100vh;}
+
+/* HDR */
+.hdr{background:#fff;border-bottom:1px solid var(--br);padding:0 16px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(38,33,28,.06);}
+.hdr-in{max-width:680px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:54px;gap:10px;}
+.hdr-name{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:600;color:var(--tl);white-space:nowrap;}
+.hdr-name small{display:block;font-size:10px;color:var(--mu);font-family:'Noto Sans JP',sans-serif;font-weight:400;line-height:1.2;}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sos-btn{background:var(--pk);color:#fff;border:none;border-radius:20px;padding:5px 12px;font-size:12px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;white-space:nowrap;animation:pulse 2.5s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(122,32,32,.3)}60%{box-shadow:0 0 0 6px rgba(122,32,32,0)}}
+.prog-wrap{display:flex;align-items:center;gap:6px;}
+.prog-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--mu);}
+.prog-bar{width:60px;height:4px;background:var(--br);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--tl);border-radius:2px;transition:width .5s;}
+
+/* SCREENS */
+.screen{display:none;max-width:680px;margin:0 auto;padding:20px 16px 90px;animation:fu .35s ease both;}
+.screen.active{display:block;}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* WELCOME */
+.w-hero{text-align:center;padding:28px 0 20px;}
+.w-icon{width:68px;height:68px;background:var(--tll);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;border:2px solid rgba(26,122,90,.15);}
+.w-hero h1{font-family:'Noto Serif JP',serif;font-size:22px;font-weight:600;margin-bottom:10px;line-height:1.4;}
+.w-hero p{font-size:13px;color:var(--mu);line-height:1.8;}
+.w-note{background:#fdf9f0;border:1px solid rgba(138,106,32,.2);border-radius:8px;padding:13px 15px;font-size:13px;color:#7a6010;margin:18px 0;line-height:1.8;}
+.sit-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
+.sit-btn{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px 11px;cursor:pointer;text-align:left;transition:all .2s;display:flex;flex-direction:column;gap:4px;}
+.sit-btn:hover,.sit-btn.sel{border-color:var(--tl);background:var(--tll);}
+.sit-btn .si{font-size:20px;}.sit-btn .st{font-size:13px;font-weight:700;}.sit-btn .sd{font-size:11px;color:var(--mu);}
+.btn-go{width:100%;background:var(--tl);color:#fff;border:none;border-radius:var(--r);padding:15px;font-size:15px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-go:hover{background:#135c43;}.btn-go:disabled{background:var(--lt);cursor:not-allowed;}
+
+/* SEC HDR */
+.sec-tag{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tl);background:var(--tll);padding:3px 9px;border-radius:4px;margin-bottom:9px;}
+.sec-hdr{margin-bottom:18px;}
+.sec-hdr h2{font-family:'Noto Serif JP',serif;font-size:20px;font-weight:600;margin-bottom:5px;line-height:1.4;}
+.sec-hdr p{font-size:13px;color:var(--mu);line-height:1.7;}
+
+/* PHASE LEGEND */
+.ph-legend{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.ph-b{display:inline-flex;align-items:center;gap:4px;padding:4px 9px;border-radius:20px;font-size:11px;font-weight:700;border:1.5px solid transparent;}
+.ph-b.p0{background:var(--p0l);color:var(--p0);border-color:var(--p0b);}
+.ph-b.p1{background:var(--p1l);color:var(--p1);border-color:var(--p1b);}
+.ph-b.p2{background:var(--p2l);color:var(--p2);border-color:var(--p2b);}
+.ph-b.p3{background:var(--p3l);color:var(--p3);border-color:var(--p3b);}
+
+/* ★ PROGRESS CARD — clickable */
+.prog-card{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:15px 16px;margin-bottom:14px;cursor:pointer;transition:all .2s;user-select:none;}
+.prog-card:hover{border-color:var(--tl);box-shadow:var(--sh);}
+.pc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.pc-title{font-size:13px;font-weight:700;}
+.pc-pct{font-family:'DM Mono',monospace;font-size:20px;color:var(--tl);}
+.pc-bar{height:7px;background:var(--sf2);border-radius:4px;overflow:hidden;}
+.pc-fill{height:100%;background:linear-gradient(90deg,var(--tl),#2daa7a);border-radius:4px;transition:width .5s;}
+.pc-hint{font-size:11px;color:var(--mu);margin-top:7px;display:flex;align-items:center;gap:4px;}
+
+/* TRIAGE STRIP */
+.ts{background:linear-gradient(135deg,#fff8f2,#fff4ec);border:1.5px solid rgba(184,92,0,.2);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;}
+.ts-t{font-size:13px;font-weight:700;color:var(--p2);margin-bottom:4px;}
+.ts-btns{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px;}
+.ts-btn{padding:6px 13px;border-radius:20px;font-size:12px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;border:none;transition:all .2s;white-space:nowrap;}
+.ts-btn.urg{background:var(--pk);color:#fff;}
+.ts-btn.nml{background:var(--tll);color:var(--tl);border:1.5px solid rgba(26,122,90,.25);}
+.ts-btn.inf{background:var(--sf2);color:var(--mu);border:1.5px solid var(--br);}
+
+/* PHASE DIVIDERS */
+.ph-div{display:flex;align-items:center;gap:10px;margin:18px 0 10px;}
+.ph-div .pd-bar{flex:1;height:2px;}
+.ph-div .pd-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;white-space:nowrap;padding:4px 9px;border-radius:4px;}
+.ph-div.d0 .pd-bar{background:var(--p0b);}.ph-div.d0 .pd-lbl{background:var(--p0l);color:var(--p0);}
+.ph-div.d1 .pd-bar{background:var(--p1b);}.ph-div.d1 .pd-lbl{background:var(--p1l);color:var(--p1);}
+.ph-div.d2 .pd-bar{background:var(--p2b);}.ph-div.d2 .pd-lbl{background:var(--p2l);color:var(--p2);}
+.ph-div.d3 .pd-bar{background:var(--p3b);}.ph-div.d3 .pd-lbl{background:var(--p3l);color:var(--p3);}
+
+/* STEP CARDS */
+.tl{position:relative;padding-left:26px;}
+.tl::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--br);}
+.sc{position:relative;margin-bottom:11px;background:#fff;border:1.5px solid var(--br);border-radius:var(--r);overflow:hidden;transition:all .3s;box-shadow:0 1px 4px rgba(38,33,28,.04);}
+.sc.done{opacity:.72;}
+.sc.ph0{border-left:3px solid var(--p0);}
+.sc.ph1{border-left:3px solid var(--p1);}
+.sc.ph2{border-left:3px solid var(--p2);}
+.sc.ph3{border-left:3px solid var(--p3);}
+.sdot{position:absolute;left:-21px;top:17px;width:12px;height:12px;border-radius:50%;background:var(--br);border:2px solid var(--bg);transition:all .3s;z-index:1;}
+.sc.done .sdot{background:var(--tl)!important;}
+.sc.ph0:not(.done) .sdot{background:var(--p0);}
+.sc.ph1:not(.done) .sdot{background:var(--p1);}
+.sc.ph2:not(.done) .sdot{background:var(--p2);}
+.sc.ph3:not(.done) .sdot{background:var(--p3);}
+.sh2{padding:13px 14px;display:flex;align-items:flex-start;gap:10px;cursor:pointer;user-select:none;}
+.snum{flex-shrink:0;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;background:var(--sf2);color:var(--mu);transition:all .3s;margin-top:1px;}
+.sc.done .snum{background:var(--tl);color:#fff;}
+.sc.ph0:not(.done) .snum{background:var(--p0l);color:var(--p0);}
+.sc.ph1:not(.done) .snum{background:var(--p1l);color:var(--p1);}
+.sc.ph2:not(.done) .snum{background:var(--p2l);color:var(--p2);}
+.sc.ph3:not(.done) .snum{background:var(--p3l);color:var(--p3);}
+.stw{flex:1;}
+.stiming{font-size:10px;font-family:'DM Mono',monospace;margin-bottom:2px;}
+.sc.ph0 .stiming{color:var(--p0);}.sc.ph1 .stiming{color:var(--p1);}.sc.ph2 .stiming{color:var(--p2);}.sc.ph3 .stiming{color:var(--p3);}
+.stitle{font-size:14px;font-weight:700;line-height:1.3;}
+.ssub{font-size:11px;color:var(--mu);margin-top:2px;}
+.schev{font-size:14px;color:var(--lt);transition:transform .3s;margin-top:3px;flex-shrink:0;}
+.sc.open .schev{transform:rotate(90deg);}
+.sbody{display:none;border-top:1px solid var(--br);padding:13px 15px;background:#fdfcfb;}
+.sc.open .sbody{display:block;}
+.sdesc{font-size:13px;color:var(--mu);line-height:1.8;margin-bottom:12px;}
+
+/* CHECKLIST */
+.cl{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
+.ci{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;background:#fff;border:1.5px solid var(--br);border-radius:8px;cursor:pointer;transition:all .2s;}
+.ci:hover{border-color:var(--tl);background:var(--tll);}
+.ci.ck{border-color:var(--tl);background:var(--tll);}
+.cb{flex-shrink:0;width:19px;height:19px;border:2px solid var(--br);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;}
+.ci.ck .cb{background:var(--tl);border-color:var(--tl);color:#fff;}
+.ci.ck .cb::after{content:'✓';font-size:11px;font-weight:700;}
+.ci-t{flex:1;font-size:13px;line-height:1.4;}
+.ci.ck .ci-t{color:var(--mu);text-decoration:line-through;}
+.ci-s{font-size:11px;color:var(--mu);margin-top:2px;}
+.ci.ck .ci-s{text-decoration:line-through;}
+
+/* LINK BTNS */
+.lb-wrap{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
+.lb{display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:9px;text-decoration:none;cursor:pointer;border:1.5px solid transparent;transition:all .2s;font-size:13px;}
+.lb:hover{transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.07);}
+.lb .li{font-size:18px;flex-shrink:0;}.lb .lbd{flex:1;}.lb .lt2{font-weight:700;}.lb .ld{font-size:11px;margin-top:1px;opacity:.8;}
+.lb-gov{background:var(--p1l);color:var(--p1);border-color:rgba(26,95,191,.2);}
+.lb-npo{background:var(--p2l);color:var(--p2);border-color:rgba(184,92,0,.2);}
+.lb-hosp{background:var(--tll);color:var(--tl);border-color:rgba(26,122,90,.2);}
+.lb-kun{background:linear-gradient(135deg,#f0f9f5,var(--tll));color:var(--tl);border-color:rgba(26,122,90,.3);}
+.lb-line{background:#e8f9e8;color:#156015;border-color:rgba(21,96,21,.2);}
+.lb-dl{background:var(--pul);color:var(--pu);border-color:rgba(80,32,160,.2);}
+.lb-col{background:#f8f4ff;color:#4a189a;border-color:rgba(74,24,154,.2);}
+
+/* PANIC */
+.pb{background:var(--pkl);border:1.5px solid rgba(122,32,32,.18);border-left:3px solid var(--pk);border-radius:9px;padding:12px 13px;margin-bottom:12px;}
+.pb-h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--pk);margin-bottom:0;cursor:pointer;}
+.pb-tg{font-size:11px;color:var(--pk);margin-left:auto;opacity:.6;}
+.pb-b{display:none;margin-top:10px;}
+.pb.open .pb-b{display:block;}
+.sc-card{background:#fff;border:1px solid rgba(122,32,32,.12);border-radius:7px;padding:10px 12px;margin-bottom:7px;}
+.sc-lbl{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;color:var(--pk);text-transform:uppercase;margin-bottom:5px;}
+.sc-text{font-size:14px;color:var(--tx);line-height:1.9;font-weight:500;}
+.sc-text .bl{display:inline-block;border-bottom:2px solid var(--p2);min-width:50px;color:var(--p2);font-weight:700;text-align:center;padding:0 3px;}
+.copy-btn{display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid rgba(122,32,32,.2);border-radius:5px;padding:4px 9px;font-size:11px;color:var(--pk);cursor:pointer;margin-top:7px;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+.copy-btn:hover{background:var(--pkl);}
+.sc-tips{margin-top:8px;font-size:12px;color:var(--mu);line-height:1.7;}
+.sc-tips li{list-style:none;padding-left:14px;position:relative;margin-bottom:3px;}
+.sc-tips li::before{content:'💡';position:absolute;left:0;font-size:10px;top:2px;}
+
+/* SUBSIDY BOX */
+.sb-box{background:#f8f5ff;border:1.5px solid rgba(80,32,160,.18);border-radius:9px;padding:12px 13px;margin-bottom:12px;}
+.sb-title{font-size:13px;font-weight:700;color:var(--pu);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.sb-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;}
+.sb-card{background:#fff;border:1px solid rgba(80,32,160,.12);border-radius:7px;padding:9px 10px;}
+.sb-c-title{font-size:11px;font-weight:700;color:var(--pu);margin-bottom:3px;}
+.sb-c-amt{font-family:'DM Mono',monospace;font-size:16px;font-weight:700;}
+.sb-c-note{font-size:10px;color:var(--mu);margin-top:2px;line-height:1.5;}
+.sb-warn{font-size:11px;color:#5030a0;background:#ede8ff;border-radius:5px;padding:7px 9px;line-height:1.6;}
+
+/* MH CHECK */
+.mh-btn{width:100%;background:linear-gradient(135deg,#fff5f5,#ffe8e8);border:1.5px solid rgba(122,32,32,.2);border-radius:9px;padding:12px;cursor:pointer;text-align:left;transition:all .2s;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-family:'Noto Sans JP',sans-serif;}
+.mh-btn:hover{border-color:var(--pk);}
+.mh-btn .mhi{font-size:20px;flex-shrink:0;}.mh-btn .mhb{flex:1;}
+.mh-btn .mht{font-size:13px;font-weight:700;color:var(--pk);}
+.mh-btn .mhd{font-size:11px;color:var(--mu);margin-top:2px;}
+
+/* MEMO */
+.memo-a{margin-top:9px;}
+.memo-a label{font-size:12px;color:var(--mu);display:block;margin-bottom:5px;}
+.memo-a textarea{width:100%;background:#fff;border:1.5px solid var(--br);border-radius:7px;padding:9px 11px;font-size:13px;font-family:'Noto Sans JP',sans-serif;color:var(--tx);resize:none;height:62px;outline:none;transition:border-color .2s;}
+.memo-a textarea:focus{border-color:var(--tl);}
+
+/* ━━━ COLUMN PAGE ━━━ */
+.col-disclaimer{background:#f8f4ff;border:1px solid rgba(80,32,160,.15);border-radius:8px;padding:11px 13px;font-size:11px;color:var(--pu);line-height:1.7;margin-bottom:18px;}
+.col-tabs{display:flex;gap:0;border:1.5px solid var(--br);border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.ct{flex:1;padding:9px 4px;background:#fff;border:none;font-size:12px;font-family:'Noto Sans JP',sans-serif;font-weight:500;color:var(--mu);cursor:pointer;transition:all .2s;border-right:1px solid var(--br);}
+.ct:last-child{border-right:none;}
+.ct.active{background:var(--tl);color:#fff;font-weight:700;}
+
+.qa-list{display:flex;flex-direction:column;gap:10px;}
+.qa-item{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);overflow:hidden;transition:all .2s;}
+.qa-item:hover{border-color:var(--tl);}
+.qa-q{padding:14px 15px;cursor:pointer;display:flex;align-items:flex-start;gap:10px;user-select:none;}
+.qa-q-badge{flex-shrink:0;width:22px;height:22px;background:var(--tll);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--tl);margin-top:1px;}
+.qa-q-text{flex:1;font-size:14px;font-weight:700;line-height:1.4;}
+.qa-chev{font-size:13px;color:var(--lt);transition:transform .3s;flex-shrink:0;margin-top:3px;}
+.qa-item.open .qa-chev{transform:rotate(90deg);}
+.qa-a{display:none;border-top:1px solid var(--br);padding:13px 15px;font-size:13px;color:var(--mu);line-height:1.8;background:#fdfcfb;}
+.qa-item.open .qa-a{display:block;}
+.qa-a strong{color:var(--tx);}
+.qa-a .qa-cta{margin-top:10px;display:flex;flex-direction:column;gap:6px;}
+
+/* KUN COLUMN CARDS */
+.kun-col-card{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);overflow:hidden;margin-bottom:12px;}
+.kcc-hdr{padding:14px 15px;background:linear-gradient(135deg,#f0f9f5,var(--tll));border-bottom:1px solid var(--br);}
+.kcc-by{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tl);margin-bottom:4px;}
+.kcc-title{font-size:15px;font-weight:700;color:var(--tx);line-height:1.4;}
+.kcc-tag{display:inline-flex;align-items:center;gap:4px;margin-top:6px;padding:3px 8px;background:rgba(26,122,90,.1);border-radius:4px;font-size:11px;color:var(--tl);font-weight:700;}
+.kcc-body{padding:14px 15px;font-size:13px;color:var(--mu);line-height:1.8;}
+.kcc-body strong{color:var(--tx);}
+.kcc-body p{margin-bottom:10px;}
+.kcc-body p:last-child{margin-bottom:0;}
+
+/* SOURCES */
+.src-cat{margin-bottom:20px;}
+.src-cat-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid var(--br);}
+.src-card{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);overflow:hidden;margin-bottom:8px;transition:all .2s;}
+.src-card:hover{border-color:var(--tl);box-shadow:var(--sh);}
+.src-in{padding:12px 13px;display:flex;align-items:flex-start;gap:10px;}
+.src-ic{width:36px;height:36px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.sg .src-ic{background:var(--p1l);}.sh .src-ic{background:var(--tll);}.sn .src-ic{background:var(--p2l);}.sl .src-ic{background:#e8f9e8;}
+.src-info{flex:1;}
+.src-name{font-size:13px;font-weight:700;margin-bottom:1px;}
+.src-type{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace;margin-bottom:5px;}
+.src-desc{font-size:12px;color:var(--mu);line-height:1.6;}
+.src-lnk{display:inline-flex;align-items:center;gap:3px;margin-top:6px;padding:4px 10px;border-radius:5px;font-size:11px;font-weight:700;text-decoration:none;cursor:pointer;transition:all .2s;}
+.sl-ext{background:var(--p1l);color:var(--p1);}.sl-line{background:#e8f9e8;color:#156015;}.sl-tel{background:var(--tll);color:var(--tl);}
+
+/* AI FAB */
+.ai-fab{position:fixed;bottom:80px;right:16px;width:50px;height:50px;background:linear-gradient(135deg,var(--tl),#0e5c40);border:none;border-radius:50%;cursor:pointer;display:none;align-items:center;justify-content:center;font-size:20px;z-index:150;box-shadow:0 4px 16px rgba(26,122,90,.4);transition:all .2s;}
+.ai-fab.show{display:flex;}
+.ai-fab:hover{transform:scale(1.08);}
+
+/* AI PANEL */
+.ai-panel{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,.15);display:none;flex-direction:column;max-height:70vh;}
+.ai-panel.open{display:flex;}
+.ai-ph{padding:15px 17px 11px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ai-pt{flex:1;font-size:15px;font-weight:700;}
+.ai-ps{font-size:11px;color:var(--mu);}
+.ai-cl{background:none;border:none;font-size:20px;color:var(--mu);cursor:pointer;}
+.ai-msgs{flex:1;overflow-y:auto;padding:13px 15px;display:flex;flex-direction:column;gap:9px;}
+.ai-bbl{max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.6;}
+.ai-bbl.ai{background:var(--sf2);color:var(--tx);align-self:flex-start;border-radius:4px 12px 12px 12px;}
+.ai-bbl.user{background:var(--tl);color:#fff;align-self:flex-end;border-radius:12px 4px 12px 12px;}
+.ai-think{background:var(--sf2);padding:10px 12px;border-radius:4px 12px 12px 12px;align-self:flex-start;font-size:13px;color:var(--mu);display:none;}
+.ai-think.show{display:block;}
+.ai-ia{padding:9px 13px 15px;border-top:1px solid var(--br);display:flex;gap:8px;flex-shrink:0;}
+.ai-inp{flex:1;border:1.5px solid var(--br);border-radius:20px;padding:9px 13px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color .2s;}
+.ai-inp:focus{border-color:var(--tl);}
+.ai-snd{background:var(--tl);color:#fff;border:none;border-radius:20px;padding:9px 15px;font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.ai-snd:hover{background:#135c43;}.ai-snd:disabled{background:var(--lt);cursor:not-allowed;}
+
+/* TRIAGE MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal-sh{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:680px;padding:22px 19px 42px;animation:su .3s ease;max-height:85vh;overflow-y:auto;}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mh3{width:32px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 16px;}
+.m-t{font-family:'Noto Serif JP',serif;font-size:19px;font-weight:600;margin-bottom:5px;}
+.m-s{font-size:13px;color:var(--mu);margin-bottom:16px;line-height:1.6;}
+.t-opts{display:flex;flex-direction:column;gap:8px;}
+.t-opt{background:#fff;border:1.5px solid var(--br);border-radius:var(--r);padding:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--tx);}
+.t-opt:hover{border-color:var(--tl);background:var(--tll);}
+.t-opt.urg{border-color:rgba(122,32,32,.3);background:var(--pkl);}
+.t-opt.urg:hover{background:#fde0e0;}
+.to-ic{font-size:24px;flex-shrink:0;}.to-b{flex:1;}
+.to-ti{font-size:14px;font-weight:700;margin-bottom:2px;}
+.to-d{font-size:11px;color:var(--mu);line-height:1.4;}
+.to-bdg{font-size:10px;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;font-weight:700;flex-shrink:0;}
+.b-urg{background:var(--pk);color:#fff;}.b-nml{background:var(--tll);color:var(--tl);}.b-auto{background:var(--p1l);color:var(--p1);}.b-free{background:var(--p2l);color:var(--p2);}
+.m-cl{margin-top:12px;width:100%;padding:11px;background:var(--sf2);border:none;border-radius:9px;font-size:14px;font-family:'Noto Sans JP',sans-serif;color:var(--mu);cursor:pointer;}
+
+/* MH MODAL */
+.mhm-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.mhm-ov.open{display:flex;}
+.mhm-sh{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:680px;padding:22px 19px 42px;animation:su .3s ease;max-height:85vh;overflow-y:auto;}
+.mh-q{background:var(--sf2);border-radius:9px;padding:12px 14px;margin-bottom:8px;}
+.mh-qt{font-size:14px;font-weight:700;margin-bottom:9px;line-height:1.5;}
+.mh-opts{display:flex;gap:7px;flex-wrap:wrap;}
+.mh-o{padding:7px 13px;border:1.5px solid var(--br);border-radius:20px;background:#fff;font-size:12px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+.mh-o:hover{border-color:var(--tl);color:var(--tl);}
+.mh-o.sel{background:var(--tl);border-color:var(--tl);color:#fff;}
+.mh-o.sel-w{background:var(--pk);border-color:var(--pk);color:#fff;}
+.mh-res{display:none;}
+.mh-res.show{display:block;}
+.mhr-box{border-radius:9px;padding:14px;text-align:center;}
+.mhr-box.ok{background:#e8f8f0;}.mhr-box.warn{background:var(--pkl);}
+.mhr-s{font-family:'DM Mono',monospace;font-size:28px;font-weight:700;}
+.mhr-box.ok .mhr-s{color:var(--tl);}.mhr-box.warn .mhr-s{color:var(--pk);}
+.mhr-l{font-size:13px;color:var(--mu);margin-top:4px;}
+.mhr-m{font-size:13px;line-height:1.7;margin-top:11px;}
+.mhr-cta{display:flex;flex-direction:column;gap:7px;margin-top:13px;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--br);display:flex;z-index:100;box-shadow:0 -2px 12px rgba(38,33,28,.06);}
+.bnv-b{flex:1;background:none;border:none;padding:9px 4px 13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--lt);font-family:'Noto Sans JP',sans-serif;transition:color .2s;}
+.bnv-b.active{color:var(--tl);}
+.bnv-b .bi{font-size:18px;}.bnv-b .bl{font-size:10px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--tx);color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:300;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="hdr-name">がんコンシェルジュ<small>診断後サポートナビ</small></div>
+    <div class="hdr-right">
+      <button class="sos-btn" onclick="openTriage()">🆘 相談</button>
+      <div class="prog-wrap">
+        <span class="prog-lbl" id="pLbl">0/36</span>
+        <div class="prog-bar"><div class="prog-fill" id="pFill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- WELCOME -->
+<div class="screen active" id="sc-welcome">
+  <div class="w-hero">
+    <div class="w-icon">🌿</div>
+    <h1>診断直後の<br>あなたへ</h1>
+    <p>「何から始めればいいか」を<br>一緒に整理します。<br>焦らなくて大丈夫です。</p>
+  </div>
+  <div class="w-note">
+    ✦ やるべきことを順番に確認できます<br>
+    ✦ 相談窓口への電話スクリプトも入っています<br>
+    ✦ AIにいつでも質問できます（右下🤖ボタン）<br>
+    ✦ 進捗カードをタップすると次の未チェックへ飛べます
+  </div>
+  <p style="font-size:13px;color:var(--mu);margin-bottom:11px;">今のあなたの状況を教えてください</p>
+  <div class="sit-grid">
+    <button class="sit-btn" onclick="selSit(this)"><span class="si">🙋</span><span class="st">自分が診断された</span><span class="sd">本人として使いたい</span></button>
+    <button class="sit-btn" onclick="selSit(this)"><span class="si">👨‍👩‍👧</span><span class="st">家族が診断された</span><span class="sd">家族を支えたい</span></button>
+    <button class="sit-btn" onclick="selSit(this)"><span class="si">💼</span><span class="st">支援者として学ぶ</span><span class="sd">保険・相談業務の方</span></button>
+    <button class="sit-btn" onclick="selSit(this)"><span class="si">📋</span><span class="st">制度だけ確認したい</span><span class="sd">特定情報を探している</span></button>
+  </div>
+  <button class="btn-go" id="startBtn" disabled onclick="startApp()">サポートをはじめる →</button>
+</div>
+
+<!-- STEPS -->
+<div class="screen" id="sc-steps">
+  <div class="sec-hdr">
+    <span class="sec-tag">🗺️ ステップガイド</span>
+    <h2>診断後にすること</h2>
+    <p>タップして詳細を確認。チェックしながら進めてください。</p>
+  </div>
+  <div class="ph-legend">
+    <span class="ph-b p0">🔴 診断直後</span>
+    <span class="ph-b p1">🔵 治療前準備</span>
+    <span class="ph-b p2">🟠 治療中</span>
+    <span class="ph-b p3">🟢 治療後・継続</span>
+  </div>
+  <div class="ts">
+    <div class="ts-t">💬 相談・質問がありますか？</div>
+    <div style="font-size:12px;color:var(--mu);">状況に合わせて最適な窓口へご案内します</div>
+    <div class="ts-btns">
+      <button class="ts-btn urg" onclick="openTriage()">🆘 今すぐ話したい</button>
+      <button class="ts-btn nml" onclick="openAI()">🤖 AIに聞く</button>
+      <button class="ts-btn inf" onclick="goTo('sc-sources')">📚 情報源を見る</button>
+    </div>
+  </div>
+  <!-- ★ Progress card — clickable to jump to next unchecked -->
+  <div class="prog-card" onclick="jumpNext()" title="タップすると次の未チェック項目へ">
+    <div class="pc-top"><span class="pc-title">あなたの進捗</span><span class="pc-pct" id="bigPct">0%</span></div>
+    <div class="pc-bar"><div class="pc-fill" id="bigFill" style="width:0%"></div></div>
+    <div class="pc-hint">👆 タップすると次の未チェック項目へ移動します</div>
+  </div>
+  <div id="stepsWrap"></div>
+</div>
+
+<!-- SOURCES -->
+<div class="screen" id="sc-sources">
+  <div class="sec-hdr">
+    <span class="sec-tag">📚 情報源・相談窓口</span>
+    <h2>信頼できる<br>情報源と相談窓口</h2>
+    <p>すべて無料または公的機関です。</p>
+  </div>
+  <div id="srcWrap"></div>
+</div>
+
+<!-- ★ COLUMN PAGE -->
+<div class="screen" id="sc-column">
+  <div class="sec-hdr">
+    <span class="sec-tag">📝 コラム・Q&amp;A</span>
+    <h2>くん先生の<br>コラムとQ&amp;A</h2>
+    <p>知っておきたい情報を整理しています。</p>
+  </div>
+  <div class="col-disclaimer">
+    ⚠️ このコラムは<strong>情報提供を目的</strong>としており、個別の医療・保険・法律アドバイスではありません。具体的な判断は、担当医・保険担当者・専門家にご相談ください。
+  </div>
+  <div class="col-tabs">
+    <button class="ct active" onclick="switchColTab('qa')">❓ Q&amp;A</button>
+    <button class="ct" onclick="switchColTab('column')">📝 くん先生コラム</button>
+  </div>
+  <div id="qaContent"></div>
+  <div id="colContent" style="display:none;"></div>
+</div>
+
+<!-- TRIAGE MODAL -->
+<div class="modal-ov" id="trModal" onclick="closeTOM(event)">
+  <div class="modal-sh">
+    <div class="mh3"></div>
+    <div class="m-t">どんなことでお困りですか？</div>
+    <div class="m-s">状況に合わせて最適な窓口へ。何でも大丈夫です。</div>
+    <div class="t-opts">
+      <a class="t-opt urg" href="https://line.me/R/ti/p/@kun-support" target="_blank">
+        <span class="to-ic">👩‍⚕️</span>
+        <div class="to-b"><div class="to-ti">くん先生に直接LINEで相談</div><div class="to-d">アピアランスケア・保険・制度の専門家。24時間以内に返信します。</div></div>
+        <span class="to-bdg b-urg">LINE直通</span>
+      </a>
+      <div class="t-opt" onclick="closeModal();openAI()">
+        <span class="to-ic">🤖</span>
+        <div class="to-b"><div class="to-ti">AIに質問する</div><div class="to-d">制度・手続き・アピアランスケアについて即座に回答します</div></div>
+        <span class="to-bdg b-auto">AI応答</span>
+      </div>
+      <a class="t-opt" href="https://hospdb.ganjoho.jp/kyoten/kyotenlist" target="_blank">
+        <span class="to-ic">🏥</span>
+        <div class="to-b"><div class="to-ti">最寄りのがん相談支援センターへ</div><div class="to-d">全国無料。受診中の病院以外でも利用OK</div></div>
+        <span class="to-bdg b-free">無料</span>
+      </a>
+      <a class="t-opt" href="https://maggiestokyo.org/" target="_blank">
+        <span class="to-ic">🤝</span>
+        <div class="to-b"><div class="to-ti">マギーズ東京（感情的サポート）</div><div class="to-d">予約不要・無料</div></div>
+        <span class="to-bdg b-free">無料</span>
+      </a>
+    </div>
+    <button class="m-cl" onclick="closeModal()">閉じる</button>
+  </div>
+</div>
+
+<!-- MH MODAL -->
+<div class="mhm-ov" id="mhModal" onclick="closeMHOM(event)">
+  <div class="mhm-sh">
+    <div class="mh3"></div>
+    <div class="m-t">🧠 こころの状態チェック</div>
+    <div class="m-s" style="margin-bottom:13px;">気づかないうちに落ちていることがあります。今の気持ちを確認してみましょう。</div>
+    <div id="mhQs"></div>
+    <div class="mh-res" id="mhRes"></div>
+    <button class="m-cl" onclick="closeMHModal()">閉じる</button>
+  </div>
+</div>
+
+<button class="ai-fab" id="aiFab" onclick="openAI()" title="AIに質問する">🤖</button>
+
+<div class="ai-panel" id="aiPanel">
+  <div class="ai-ph">
+    <div><div class="ai-pt">🤖 がんコンシェルジュ AI</div><div class="ai-ps">制度・手続き・アピアランスケアについて質問できます</div></div>
+    <button class="ai-cl" onclick="closeAI()">✕</button>
+  </div>
+  <div class="ai-msgs" id="aiMsgs">
+    <div class="ai-bbl ai">こんにちは。制度のこと、手続きのこと、アピアランスケアのこと、何でも聞いてください。</div>
+  </div>
+  <div class="ai-think" id="aiThink">考えています…</div>
+  <div class="ai-ia">
+    <input class="ai-inp" id="aiInp" placeholder="質問を入力してください" onkeydown="if(event.key==='Enter')sendAI()">
+    <button class="ai-snd" id="aiSnd" onclick="sendAI()">送信</button>
+  </div>
+</div>
+
+<nav class="bnav" id="bnav" style="display:none;">
+  <button class="bnv-b active" id="nav-steps" onclick="goTo('sc-steps')"><span class="bi">🗺️</span><span class="bl">ステップ</span></button>
+  <button class="bnv-b" id="nav-sources" onclick="goTo('sc-sources')"><span class="bi">📚</span><span class="bl">情報源</span></button>
+  <button class="bnv-b" id="nav-column" onclick="goTo('sc-column')"><span class="bi">📝</span><span class="bl">コラム</span></button>
+  <button class="bnv-b" id="nav-triage" onclick="openTriage()"><span class="bi">💬</span><span class="bl">相談</span></button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+const steps = [
+  {id:1,ph:0,divPh:0,timing:"診断直後 〜24時間",
+   title:"まず「一人で抱え込まない」と決める",sub:"心理的準備・環境整備",
+   desc:"診断を受けた直後は誰でも頭が真っ白になります。今日は何も決めなくていい。まず信頼できる人に連絡することだけを考えてください。",
+   checks:[
+     {t:"信頼できる家族・友人に連絡した",s:"一人で決断しないことが重要"},
+     {t:"次の受診日を確認した",s:"担当医への質問をメモ開始"},
+     {t:"「今日は休む」と決めた",s:""},
+   ],
+   links:[
+     {tp:'npo',ic:'🤝',t:'マギーズ東京（感情的サポート）',d:'予約不要・無料',u:'https://maggiestokyo.org/'},
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'24時間以内返信',u:'https://line.me/R/ti/p/@kun-support'},
+   ],panic:null,memo:true},
+
+  {id:2,ph:0,divPh:null,timing:"1〜3日以内",
+   title:"がん相談支援センターに連絡する",sub:"無料・全国どこでも利用可",
+   desc:"全国のがん診療連携拠点病院に設置。治療・お金・仕事、何でも相談できます。完全無料。受診中の病院以外でもOKです。",
+   checks:[
+     {t:"最寄りのがん相談支援センターを調べた",s:"国立がん研究センターHPから検索可能"},
+     {t:"電話または来所で相談予約をした",s:""},
+     {t:"相談したいことをメモにまとめた",s:"整理されていなくても大丈夫"},
+   ],
+   links:[
+     {tp:'gov',ic:'🏛️',t:'がん相談支援センターを探す',d:'国立がん研究センター公式',u:'https://hospdb.ganjoho.jp/kyoten/kyotenlist'},
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'何を聞けばいいか一緒に考えます',u:'https://line.me/R/ti/p/@kun-support'},
+   ],
+   panic:{title:"😰 電話で何を話せばいい？",
+    script:`はじめまして。[あなたのお名前]と申します。\n[病院名]で先日がんの診断を受けました。\nどこに相談すればいいか分からず、こちらに電話しました。\n治療のことや、これからの生活について相談したいのですが、予約はできますか？`,
+    tips:["「全部説明できない」でも大丈夫。「困っています」だけでも通じます","診断書や資料がなくても相談を受け付けてもらえます","電話が難しければメモを持参して直接行くだけでもOK"]},
+   memo:true},
+
+  {id:3,ph:0,divPh:null,timing:"1週間以内",
+   title:"セカンドオピニオンの検討",sub:"治療方針の確認",
+   desc:"担当医に遠慮する必要はありません。別の専門医の意見を聞くことは「診断の精度を上げる行為」です。",
+   checks:[
+     {t:"担当医の説明を録音・メモした",s:"後から必ず参照したくなります"},
+     {t:"セカンドオピニオン外来を調べた",s:"健康保険外。多くは3〜5万円"},
+     {t:"質問リストを作成した",s:"治療の選択肢・副作用・5年生存率など"},
+   ],
+   links:[
+     {tp:'gov',ic:'🏛️',t:'セカンドオピニオン外来を探す',d:'国立がん研究センター',u:'https://ganjoho.jp/public/dia_tre/2nd_opinion/index.html'},
+   ],
+   panic:{title:"😰 担当医への切り出し方",
+    script:`先生、少しよろしいでしょうか。\nセカンドオピニオンをお願いしたいのですが、\n紹介状（診療情報提供書）を作成していただけますか？`,
+    tips:["セカンドオピニオンを求めることは患者の権利です","担当医との関係が壊れることはほぼありません"]},
+   memo:false},
+
+  {id:4,ph:0,divPh:null,timing:"1週間以内",
+   title:"加入している保険を確認する",sub:"給付金・保障内容の整理",
+   desc:"がん診断確定時に一時金が出る保険があります。診断書は複数枚用意しましょう。面談を予約してこのアプリを一緒に確認するのもお勧めです。",
+   checks:[
+     {t:"がん保険・医療保険の証券を探した",s:"会社の団体保険も忘れずに確認"},
+     {t:"担当の募集人（保険代理店）に連絡した",s:""},
+     {t:"診断書を何枚取得するか確認した",s:"各保険・各制度でそれぞれ必要"},
+     {t:"面談の予約日を決めた",s:"保険内容・今後の手続きを一緒に整理"},
+   ],
+   links:[
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談・面談予約',d:'保険の使い方・このアプリの使い方を一緒に確認します',u:'https://line.me/R/ti/p/@kun-support'},
+   ],
+   panic:{title:"😰 保険会社に電話するとき",
+    script:`[保険会社名]ですか。契約者の[お名前]です。\n先日、がんと診断されました。\nどのような給付金が受け取れるか確認したいのですが、\n担当者につないでいただけますか？証券番号は[証券番号]です。`,
+    tips:["証券番号が見つからなくても氏名・生年月日で検索してもらえます","「何が出るか分からない」そのままで電話してOKです"]},
+   memo:true},
+
+  {id:5,ph:1,divPh:1,timing:"2週間以内",
+   title:"高額療養費制度の手続き",sub:"医療費の自己負担を大幅に軽減",
+   desc:"月の医療費が一定額を超えると払い戻しを受けられます。限度額適用認定証を事前に取得すれば窓口支払い自体を抑えられます。",
+   checks:[
+     {t:"加入している健康保険の種類を確認した",s:"社会保険 or 国民健康保険"},
+     {t:"限度額適用認定証の申請をした",s:"治療開始前に取得が理想"},
+     {t:"自己負担限度額（所得区分）を確認した",s:"年収により異なります"},
+   ],
+   links:[
+     {tp:'gov',ic:'🏛️',t:'高額療養費制度（厚生労働省）',d:'制度詳細・限度額一覧',u:'https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/iryouhoken/juuyou/kougakuiryou/index.html'},
+   ],
+   panic:{title:"😰 健康保険組合への電話",
+    script:`[全国健康保険協会 or 会社の健保組合]ですか。\n被保険者の[お名前]です。\nがん治療のため、限度額適用認定証の申請をしたいのですが、\n手続きを教えていただけますか？`,
+    tips:["会社員は「協会けんぽ」または自社の「健康保険組合」へ","自営業・フリーランスは市区町村の国民健康保険窓口へ","届くまで1〜2週間。治療開始前に早めに動くことが重要"]},
+   memo:false},
+
+  {id:6,ph:1,divPh:null,timing:"2週間以内",
+   title:"職場への報告と就労継続の検討",sub:"仕事を続けながら治療する選択肢",
+   desc:"「治療しながら働く」ことは今や一般的です。いきなり退職しないでください。休職制度・傷病手当金の活用を確認しましょう。",
+   checks:[
+     {t:"直属の上司または人事に状況を報告した",s:""},
+     {t:"就業規則で休職制度を確認した",s:"休職可能期間・給与補償を把握"},
+     {t:"社会保険労務士への相談を検討した",s:"複雑なケースは専門家へ"},
+   ],
+   links:[
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'職場への伝え方も一緒に考えます',u:'https://line.me/R/ti/p/@kun-support'},
+   ],panic:null,memo:true},
+
+  {id:7,ph:1,divPh:null,timing:"治療開始前",
+   title:"傷病手当金の申請準備",sub:"働けない期間の収入を確保する",
+   desc:"会社員・公務員が対象。連続4日以上休業で、給与の約2/3が最長1年6ヶ月支給されます。早めに準備することが重要です。",
+   checks:[
+     {t:"対象かどうか確認した（社保加入者が対象）",s:"国民健康保険は対象外"},
+     {t:"申請書類を健保組合から取り寄せた",s:"医師・事業主の証明が必要"},
+     {t:"支給期間・金額の目安を計算した",s:""},
+   ],
+   links:[
+     {tp:'gov',ic:'🏛️',t:'傷病手当金（協会けんぽ）',d:'申請書ダウンロードも可',u:'https://www.kyoukaikenpo.or.jp/g3/cat315/sb3040/r139/'},
+   ],panic:null,memo:false},
+
+  {id:8,ph:1,divPh:null,timing:"治療開始前",
+   title:"アピアランスケアの準備と助成金",sub:"外見の変化に備える＋助成金を確認",
+   desc:"脱毛・爪・肌の変化など、治療による外見の変化に事前に備えることができます。全国400以上の自治体が助成金制度を持っています。",
+   checks:[
+     {t:"治療による外見変化の可能性を担当医に確認した",s:"脱毛・爪・肌・体重変化など"},
+     {t:"病院のアピアランスケア相談室を調べた",s:"がん拠点病院に設置されている場合あり"},
+     {t:"お住まいの自治体の助成金制度を調べた",s:"ウィッグ・胸部補整具は別々に申請可能"},
+     {t:"提携サロンを調べた（試着・相談）",s:""},
+   ],
+   links:[
+     {tp:'hosp',ic:'🏥',t:'アピアランスケア外来を探す',d:'国立がん研究センター',u:'https://ganjoho.jp/public/support/appearance/index.html'},
+     {tp:'gov',ic:'📋',t:'ウィッグ助成金 自治体一覧',d:'JHD&C 全国自治体の助成情報',u:'https://www.jhdac.org/local_goverment/'},
+     {tp:'dl',ic:'⬇️',t:'助成金チェックシートをダウンロード',d:'印刷・コンビニ印刷対応のPDFが開きます',u:'#',onclick:'openDownload()'},
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'アピアランスケア専門家として直接アドバイス',u:'https://line.me/R/ti/p/@kun-support'},
+   ],
+   subsidy:true,panic:null,memo:true},
+
+  {id:9,ph:2,divPh:2,timing:"治療開始前に申請（重要）",
+   title:"訪問看護・在宅サービスの申請",sub:"一人暮らしの方は特に重要です",
+   desc:"「まだ大丈夫」と思っていても、抗がん剤の副作用はいつ出るか分かりません。副作用が出てからでは申請が遅くなります。治療前に手配しておくことが大切です。",
+   checks:[
+     {t:"訪問看護が必要かどうか主治医に相談した",s:""},
+     {t:"「一人暮らし」または「日中一人」の状況を担当医に伝えた",s:""},
+     {t:"申請書類（指示書）を主治医に依頼した",s:"医師の指示書があれば利用できます"},
+     {t:"訪問看護ステーションを探した",s:"地域の医療機関に紹介してもらえる"},
+   ],
+   links:[
+     {tp:'gov',ic:'🏛️',t:'訪問看護ステーション検索',d:'公益財団法人日本訪問看護財団',u:'https://www.jvnf.or.jp/home/station-search'},
+     {tp:'col',ic:'📝',t:'くん先生コラムを読む：なぜ今すぐ申請が必要か',d:'治療中の孤立とうつのリスクについて',u:'#',onclick:"goTo('sc-column');switchColTab('column')"},
+   ],panic:null,memo:true},
+
+  {id:10,ph:2,divPh:null,timing:"治療中〜後（継続的に）",
+   title:"こころの状態を確認する",sub:"気づかないうちに落ちていることがあります",
+   desc:"治療中の不安・抑うつは非常によくあることです。患者自身は「落ちていること」に気づきにくいため、定期的な確認が重要です。",
+   checks:[
+     {t:"心理的サポートについて担当医に相談した",s:""},
+     {t:"患者会・ピアサポートを探した",s:"同じ経験を持つ人との繋がり"},
+     {t:"こころの状態チェックをした（下のボタンから）",s:""},
+   ],
+   links:[
+     {tp:'npo',ic:'🤝',t:'マギーズ東京',d:'感情的サポート・予約不要',u:'https://maggiestokyo.org/'},
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'気持ちのことも相談できます',u:'https://line.me/R/ti/p/@kun-support'},
+   ],
+   mhCheck:true,panic:null,memo:true},
+
+  {id:11,ph:3,divPh:3,timing:"治療後（慎重に）",
+   title:"就労復帰・社会復帰の準備",sub:"心の回復は体の回復より遅れます",
+   desc:"医師が「復帰できる」と判断しても、心理的な回復は追いついていないことが多いです。特に抗がん剤治療中に職場復帰になる場合は要注意です。",
+   checks:[
+     {t:"主治医から就労許可の見通しを聞いた",s:"「体の回復」だけでなく心の状態も伝える"},
+     {t:"会社の産業医・人事と復帰プランを話し合った",s:"段階的復帰（試し出勤・時短）を依頼"},
+     {t:"障害者手帳・障害年金の対象か確認した",s:""},
+     {t:"心理的な準備が整っているか自分に確認した",s:""},
+   ],
+   links:[
+     {tp:'gov',ic:'🏛️',t:'ハローワーク（就労支援）',d:'障害者雇用・就労継続支援',u:'https://www.mhlw.go.jp/www1/houdou/0904/h0430-3.html'},
+     {tp:'col',ic:'📝',t:'くん先生コラムを読む：傷病手当と復帰の落とし穴',d:'心の傷は医師の診断に入らない理由',u:'#',onclick:"goTo('sc-column');switchColTab('column')"},
+     {tp:'kun',ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'復帰タイミングの判断を一緒に考えます',u:'https://line.me/R/ti/p/@kun-support'},
+   ],panic:null,memo:true},
+
+  {id:12,ph:3,divPh:null,timing:"継続的に",
+   title:"定期的な記録と振り返り",sub:"自分の状況を可視化する",
+   desc:"体調・費用・気持ちを記録し続けることは、医師との連携を深め、制度申請の根拠にもなります。",
+   checks:[
+     {t:"療養日誌・手帳をつけ始めた",s:"症状・体調・費用・気持ちを記録"},
+     {t:"医療費の領収書を保管している",s:"確定申告の医療費控除に使える"},
+     {t:"次回診察の質問事項をメモしている",s:""},
+   ],
+   links:[],panic:null,memo:true},
+];
+
+// ★ Q&A DATA — compliance-safe format
+const qaData = [
+  {q:"高額療養費制度とは何ですか？どうすれば使えますか？",
+   a:`<strong>月の医療費の自己負担が一定額を超えた場合に、超過分が払い戻される制度です。</strong>所得区分によって限度額が異なります（例：標準的な収入の方で月約8万円程度）。<br><br>
+   <strong>事前手続き（おすすめ）：</strong>「限度額適用認定証」を事前に取得すると、病院窓口での支払い自体を限度額に抑えられます。加入している健康保険組合または協会けんぽへ申請してください。<br><br>
+   <strong>後から申請も可能：</strong>加入している健保組合に「高額療養費申請書」を提出することで払い戻しを受けられます。`},
+  {q:"傷病手当金はいつ、どこに申請すればいいですか？",
+   a:`<strong>傷病手当金は、社会保険加入者が対象の制度です（国民健康保険は対象外）。</strong><br><br>
+   ・対象：連続4日以上仕事を休んだ場合<br>
+   ・金額：給与の約2/3<br>
+   ・期間：最長1年6ヶ月<br><br>
+   申請先は、勤務先が加入している<strong>健康保険組合または協会けんぽ</strong>です。申請書に医師・事業主の証明が必要なため、休業前から準備することをお勧めします。`},
+  {q:"アピアランスケアって何ですか？誰でも受けられますか？",
+   a:`<strong>アピアランスケアとは、がん治療による外見の変化（脱毛・爪・肌・体型変化など）に対応する医療的ケアのことです。</strong>美容ではなく、生活の質を維持するための支援として位置づけられています。<br><br>
+   全国のがん診療連携拠点病院の多くに「アピアランスケア外来」や相談室が設置されています。受診中の病院になくても、近くの拠点病院に相談することができます。<br><br>
+   <strong>知っておきたいこと：</strong>まだ認知度が低く、「そういうケアがある」と知らずに一人で悩んでいる方が多いのが現状です。担当医に「アピアランスケアについて相談できる場所はありますか？」と一言聞いてみてください。`,
+   cta:[{ic:'👩‍⚕️',t:'くん先生にLINEで相談',d:'アピアランスケアの専門家として直接アドバイスします',u:'https://line.me/R/ti/p/@kun-support',tp:'kun'}]},
+  {q:"医療用ウィッグの助成金はどうやってもらえますか？",
+   a:`<strong>全国400以上の自治体が独自の助成金制度を設けています。</strong>金額は自治体により異なります（上限1万円〜3万円程度が多い）。<br><br>
+   <strong>重要な注意点：</strong><br>
+   ・<strong>購入前</strong>に申請が必要な自治体があります<br>
+   ・医療用ウィッグと胸部補整具は<strong>別々に申請できる</strong>自治体が多い<br>
+   ・領収書の保管が必要（購入から1年以内に申請が多い）<br>
+   ・「医療用ウィッグ」と明記された領収書が必要<br><br>
+   まずお住まいの市区町村の窓口またはウェブサイトで「がん患者 ウィッグ 助成」と検索することをお勧めします。`,
+   cta:[{ic:'📋',t:'ウィッグ助成金 自治体一覧（JHD&C）',d:'全国の自治体情報を確認',u:'https://www.jhdac.org/local_goverment/',tp:'gov'}]},
+  {q:"訪問看護はどんな時に使えますか？申請はどうすれば？",
+   a:`<strong>自宅療養中に看護師が定期的に訪問してくれるサービスです。医療保険が適用されます。</strong><br><br>
+   必要なもの：主治医が作成する「訪問看護指示書」<br><br>
+   <strong>がん治療中に特にお勧めしたい方：</strong><br>
+   ・一人暮らしの方<br>
+   ・日中一人になる時間が長い方<br>
+   ・抗がん剤治療中の方（副作用が急に出ることがある）<br><br>
+   副作用が出てから申請しようとすると時間がかかります。<strong>「まだ大丈夫」と思っていても治療前に準備しておくことを強くお勧めします。</strong>`,
+   cta:[{ic:'📝',t:'くん先生コラムを読む',d:'なぜ今すぐ申請が必要なのか',u:'#',tp:'col',onclick:"goTo('sc-column');switchColTab('column')"}]},
+  {q:"職場への報告はどこまで伝えればいいですか？",
+   a:`これは非常によく聞かれる質問です。一般的な情報としてお伝えします。<br><br>
+   <strong>伝える義務はありません。</strong>ただし、休職・配慮をお願いする場合は「治療が必要な病気にかかった」という事実は伝える必要があります。<br><br>
+   <strong>多くの方が選ぶ伝え方：</strong>「病気の治療のため、しばらく休職（または治療をしながら勤務）が必要になりました」という伝え方で、具体的な病名は必ずしも言わなくてよい場合があります。<br><br>
+   実際の状況によって最善の方法は異なりますので、具体的な判断は担当医・社労士・産業医などにご相談ください。`},
+];
+
+// ★ KUN COLUMNS — separate from steps
+const columnData = [
+  {tag:"訪問看護・在宅支援",
+   title:"「まだ大丈夫」は禁物です — 治療前に訪問看護の申請を",
+   body:`<p>がん相談のなかで、「治療が始まってから考えようと思っていた」という声をよく聞きます。気持ちはよく分かります。でも、訪問看護については、これが大きなリスクになることがあります。</p>
+<p><strong>抗がん剤の副作用はいつ出るか予測できません。</strong>元気に見えていた方が、投与翌日から高熱・吐き気・倦怠感で動けなくなることがあります。そのタイミングで「申請しよう」と動くのは、体的にも精神的にもとても難しい。</p>
+<p>特に一人暮らしの方、日中一人になる時間が長い方は、<strong>治療中に「誰も来ない」という環境が続くことで、孤立感がうつにつながるリスクが高まります。</strong>これは複数の研究で示されていることです。</p>
+<p>訪問看護は「介護が必要な状態」でないと使えない、と思っている方も多いですが、<strong>がん治療中であれば医師の指示書があれば医療保険で利用できます。</strong></p>
+<p>「まだいらない」と感じていても、申請だけでも先にしておくことをお勧めします。使わなくてもいい。でも使える状態にしておくことが、治療後の生活の質を守ることにつながります。</p>
+<p style="font-size:12px;color:var(--mu);border-top:1px solid var(--br);padding-top:10px;margin-top:4px;">※これは私が支援現場で見聞きしてきたことをまとめた情報提供です。個別の判断は担当医・専門家にご相談ください。</p>`},
+
+  {tag:"就労・両立支援",
+   title:"傷病手当金が終わるとき — 復帰を急がせる仕組みの危険性",
+   body:`<p>傷病手当金は最長1年6ヶ月です。この期間が近づいてくると、患者さんに「そろそろ復帰しなければ」というプレッシャーがかかり始めます。</p>
+<p><strong>主治医は身体的な回復を評価します。</strong>傷の経過が良好であれば「復帰可能」という判断書を書きます。これは医師の立場からは正しい判断です。しかし主治医は通常、外科・内科・腫瘍科の担当であり、<strong>心理的な回復は専門外です。</strong></p>
+<p>がん治療では、「見えない傷口」が深く残ることがあります。「なぜ自分が」という問い、治療中の孤独感、仕事を続けられるかという不安、再発への恐怖。<strong>これらは体の回復とは別の時間軸で動いています。</strong></p>
+<p>実際に、抗がん剤治療中に職場復帰となり、心が追いつかないまま無理を続けた結果、うつ・再休職・退職という経過をたどった方を多く見てきました。</p>
+<p><strong>「医者がOKと言ったから大丈夫」は、心については当てはまらないことがあります。</strong>復帰のタイミングを自分で判断するのは難しいからこそ、産業医・心理士・社労士など、心理的な側面を評価できる専門家の関与が重要です。</p>
+<p>復帰に不安を感じているなら、それは「弱さ」ではありません。その感覚を誰かに伝えてください。</p>
+<p style="font-size:12px;color:var(--mu);border-top:1px solid var(--br);padding-top:10px;margin-top:4px;">※これは私が支援現場で見聞きしてきたことをまとめた情報提供です。個別の判断は担当医・社労士・産業医にご相談ください。</p>`},
+
+  {tag:"アピアランスケア",
+   title:"アピアランスケアを「美容の話」と思っていませんか？",
+   body:`<p>「外見のケア」というと、贅沢・後回し・治療中には関係ない、と思われることがあります。私はその認識を変えたいと思って活動しています。</p>
+<p><strong>アピアランスケアは、生活を続けるための支援です。</strong>脱毛によって外出できなくなる。爪の変形で仕事ができなくなる。外見の変化を人に見られたくなくて受診をやめてしまう。これらは実際に起きていることです。</p>
+<p>ウィッグや補整具は「きれいでいるため」ではなく、<strong>「社会とつながり続けるため」の道具です。</strong>仕事に行ける。子どもの学校行事に参加できる。人と会える。それが治療のモチベーションを保つことにつながります。</p>
+<p><strong>まだ知らない方が多いのが現実です。</strong>全国400以上の自治体がウィッグ・補整具の助成金制度を持っているのに、知らないまま全額自己負担で購入している方がいます。担当医も教えてくれないことがほとんどです。</p>
+<p>「知ってさえいれば」と後から言う方に会うたびに、もっと早く届けたいと思っています。</p>
+<p style="font-size:12px;color:var(--mu);border-top:1px solid var(--br);padding-top:10px;margin-top:4px;">※これは私が支援現場で見聞きしてきたことをまとめた情報提供です。</p>`},
+];
+
+const sources = [
+  {cat:"公的機関・制度情報",cls:'sg',items:[
+    {ic:'🏛️',n:'国立がん研究センター がん情報サービス',tp:'公的機関',d:'がんの種類・治療・制度まで網羅。相談支援センター検索も可能。',u:'https://ganjoho.jp/',lt:'ext'},
+    {ic:'🏛️',n:'がん相談支援センター検索',tp:'公的機関',d:'全国400以上の無料相談窓口。受診中の病院以外でも利用OK。',u:'https://hospdb.ganjoho.jp/kyoten/kyotenlist',lt:'ext'},
+    {ic:'🏛️',n:'全国健康保険協会（協会けんぽ）',tp:'公的保険',d:'高額療養費・傷病手当金・限度額適用認定証の申請窓口。',u:'https://www.kyoukaikenpo.or.jp/',lt:'ext'},
+    {ic:'📋',n:'ウィッグ助成金 自治体一覧（JHD&C）',tp:'アピアランスケア',d:'全国の自治体ウィッグ・補整具助成情報を一覧で確認できます。',u:'https://www.jhdac.org/local_goverment/',lt:'ext'},
+  ]},
+  {cat:"NPO・患者支援",cls:'sn',items:[
+    {ic:'🤝',n:'マギーズ東京',tp:'NPO',d:'予約不要・無料。感情的サポートを中心に看護師・心理士が在中。',u:'https://maggiestokyo.org/',lt:'ext'},
+    {ic:'🤝',n:'キャンサーネットジャパン',tp:'NPO',d:'患者向け情報提供・患者会の紹介・ピアサポート仲介。',u:'https://www.cancernet.jp/',lt:'ext'},
+    {ic:'⚖️',n:'全国社会保険労務士連合会',tp:'専門家',d:'傷病手当金・障害年金・就労継続など複雑な案件は社労士へ。',u:'https://www.sharoushi.or.jp/',lt:'ext'},
+  ]},
+  {cat:"病院・専門窓口",cls:'sh',items:[
+    {ic:'🏥',n:'アピアランスケア外来（国立がん研究センター）',tp:'医療機関',d:'外見の変化に対応する専門外来・相談室の検索。',u:'https://ganjoho.jp/public/support/appearance/index.html',lt:'ext'},
+    {ic:'🏥',n:'訪問看護ステーション検索',tp:'医療機関',d:'公益財団法人日本訪問看護財団による全国検索。',u:'https://www.jvnf.or.jp/home/station-search',lt:'ext'},
+  ]},
+  {cat:"くん先生への直接相談",cls:'sl',items:[
+    {ic:'👩‍⚕️',n:'くん先生に直接LINEで相談する',tp:'LINE直通',d:'アピアランスケア・保険・制度の専門家として直接対応します。24時間以内に返信します。',u:'https://line.me/R/ti/p/@kun-support',lt:'line'},
+  ]},
+];
+
+const mhQuestions = [
+  {q:"この2週間、気分が落ち込んだり、希望が持てないと感じることがありましたか？",opts:["まったくない","数日間","半分以上","ほぼ毎日"]},
+  {q:"物事に対してほとんど興味・関心がなくなっていると感じましたか？",opts:["感じない","少し感じる","かなり感じる","ほぼ毎日"]},
+  {q:"治療のことを考えると、強い不安や恐怖を感じますか？",opts:["感じない","少し感じる","かなり感じる","毎日感じる"]},
+  {q:"夜、眠れない・何度も目が覚めることがありますか？",opts:["ない","週に1〜2回","ほぼ毎日","毎日かなりつらい"]},
+  {q:"誰かに気持ちを打ち明けられていますか？",opts:["できている","あまりできていない","ほとんどできていない","誰にも話せていない"]},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+const checked = {};
+const memos = {};
+let mhAns = {};
+
+// ============================================================
+// RENDER STEPS
+// ============================================================
+function renderSteps() {
+  const wrap = document.getElementById('stepsWrap');
+  wrap.innerHTML = '';
+  const tl = document.createElement('div');
+  tl.className = 'tl';
+  wrap.appendChild(tl);
+
+  const divLabels = ['🔴 診断直後','🔵 治療前準備','🟠 治療中','🟢 治療後・継続'];
+
+  steps.forEach(step => {
+    // Phase divider
+    if (step.divPh !== null && step.divPh !== undefined) {
+      const d = document.createElement('div');
+      d.className = `ph-div d${step.divPh}`;
+      d.innerHTML = `<div class="pd-bar"></div><span class="pd-lbl">${divLabels[step.divPh]}</span><div class="pd-bar"></div>`;
+      tl.appendChild(d);
+    }
+
+    const allDone = step.checks.every((_,ci) => checked[`${step.id}_${ci}`]);
+    const card = document.createElement('div');
+    card.className = `sc ph${step.ph} ${allDone?'done':''}`;
+    card.dataset.sid = step.id;
+
+    const cHTML = step.checks.map((c,ci) => {
+      const ck = checked[`${step.id}_${ci}`];
+      return `<div class="ci ${ck?'ck':''}" onclick="tglCk(${step.id},${ci})">
+        <div class="cb"></div>
+        <div class="ci-t">${c.t}${c.s?`<div class="ci-s">${c.s}</div>`:''}</div>
+      </div>`;
+    }).join('');
+
+    const lHTML = step.links?.length ? `<div class="lb-wrap">${step.links.map(l => {
+      const extra = l.onclick ? `onclick="${l.onclick};return false;"` : '';
+      return `<a class="lb lb-${l.tp}" href="${l.u}" target="${l.onclick?'_self':'_blank'}" ${extra}>
+        <span class="li">${l.ic}</span>
+        <div class="lbd"><div class="lt2">${l.t}</div><div class="ld">${l.d}</div></div>
+        <span>›</span></a>`;
+    }).join('')}</div>` : '';
+
+    const pHTML = step.panic ? `<div class="pb" id="pb${step.id}">
+      <div class="pb-h" onclick="tglPb(${step.id})">
+        <span>${step.panic.title}</span><span class="pb-tg">タップして開く ▾</span>
+      </div>
+      <div class="pb-b">
+        <div class="sc-card">
+          <div class="sc-lbl">📞 このまま読んでOK</div>
+          <div class="sc-text">${step.panic.script.replace(/\[([^\]]+)\]/g,'<span class="bl">$1</span>').replace(/\n/g,'<br>')}</div>
+          <button class="copy-btn" onclick="cpyS(${step.id})">📋 コピーする</button>
+        </div>
+        <ul class="sc-tips">${step.panic.tips.map(t=>`<li>${t}</li>`).join('')}</ul>
+      </div></div>` : '';
+
+    const sbHTML = step.subsidy ? `<div class="sb-box">
+      <div class="sb-title">💜 アピアランスケア助成金（自治体別）</div>
+      <div class="sb-row">
+        <div class="sb-card"><div class="sb-c-title">🧢 医療用ウィッグ</div><div class="sb-c-amt">〜3万円</div><div class="sb-c-note">抗がん剤・放射線治療による脱毛が対象。自治体により異なる。</div></div>
+        <div class="sb-card"><div class="sb-c-title">🩹 胸部補整具</div><div class="sb-c-amt">〜2万円</div><div class="sb-c-note">乳房切除を伴うがん治療が対象。ウィッグとは別に申請可。</div></div>
+      </div>
+      <div class="sb-warn">⚠️ <strong>購入前</strong>に市区町村窓口へ確認を。領収書の保管必須。全国400以上の自治体が制度あり。</div>
+    </div>` : '';
+
+    const mhHTML = step.mhCheck ? `<button class="mh-btn" onclick="openMHModal()">
+      <span class="mhi">🧠</span>
+      <div class="mhb"><div class="mht">こころの状態をチェックする</div><div class="mhd">5つの質問に答えるだけ。気づかないうちに落ちていることがあります。</div></div>
+      <span>›</span></button>` : '';
+
+    const moHTML = step.memo ? `<div class="memo-a">
+      <label>📝 メモ</label>
+      <textarea placeholder="気になること、聞きたいことを書いておこう" oninput="saveMemo(${step.id},this.value)">${memos[step.id]||''}</textarea>
+    </div>` : '';
+
+    card.innerHTML = `
+      <div class="sdot"></div>
+      <div class="sh2" onclick="tglSt(this)">
+        <div class="snum">${allDone?'✓':step.id}</div>
+        <div class="stw">
+          <div class="stiming">⏱ ${step.timing}</div>
+          <div class="stitle">${step.title}</div>
+          <div class="ssub">${step.sub}</div>
+        </div>
+        <div class="schev">›</div>
+      </div>
+      <div class="sbody">
+        <p class="sdesc">${step.desc}</p>
+        ${pHTML}${sbHTML}
+        <div class="cl">${cHTML}</div>
+        ${mhHTML}${lHTML}${moHTML}
+      </div>`;
+
+    tl.appendChild(card);
+  });
+
+  updateProg();
+}
+
+// ============================================================
+// RENDER SOURCES
+// ============================================================
+function renderSources() {
+  document.getElementById('srcWrap').innerHTML = sources.map(cat => `
+    <div class="src-cat">
+      <div class="src-cat-lbl">${cat.cat}</div>
+      ${cat.items.map(i => `
+        <div class="src-card ${cat.cls}">
+          <div class="src-in">
+            <div class="src-ic">${i.ic}</div>
+            <div class="src-info">
+              <div class="src-name">${i.n}</div>
+              <div class="src-type">${i.tp}</div>
+              <div class="src-desc">${i.d}</div>
+              <a class="src-lnk ${i.lt==='line'?'sl-line':i.lt==='tel'?'sl-tel':'sl-ext'}" href="${i.u}" target="_blank">
+                ${i.lt==='line'?'💬 LINEで相談':i.lt==='tel'?'📞 電話する':'🔗 サイトを開く'}
+              </a>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+// ============================================================
+// RENDER COLUMN
+// ============================================================
+function renderColumn() {
+  // Q&A
+  document.getElementById('qaContent').innerHTML = `<div class="qa-list">${
+    qaData.map((item, i) => `
+      <div class="qa-item" id="qa${i}">
+        <div class="qa-q" onclick="tglQA(${i})">
+          <div class="qa-q-badge">Q</div>
+          <div class="qa-q-text">${item.q}</div>
+          <div class="qa-chev">›</div>
+        </div>
+        <div class="qa-a">${item.a}
+          ${item.cta ? `<div class="qa-cta">${item.cta.map(c=>`
+            <a class="lb lb-${c.tp}" href="${c.u}" target="${c.onclick?'_self':'_blank'}" ${c.onclick?`onclick="${c.onclick};return false;"`:''}>
+              <span class="li">${c.ic}</span>
+              <div class="lbd"><div class="lt2">${c.t}</div><div class="ld">${c.d}</div></div>
+            </a>`).join('')}</div>` : ''}
+        </div>
+      </div>`).join('')}
+  </div>`;
+
+  // Columns
+  document.getElementById('colContent').innerHTML = columnData.map(col => `
+    <div class="kun-col-card">
+      <div class="kcc-hdr">
+        <div class="kcc-by">Kun's Column</div>
+        <div class="kcc-title">${col.title}</div>
+        <span class="kcc-tag">${col.tag}</span>
+      </div>
+      <div class="kcc-body">${col.body}</div>
+    </div>`).join('');
+}
+
+function tglQA(i) {
+  document.getElementById(`qa${i}`).classList.toggle('open');
+}
+
+function switchColTab(tab) {
+  document.querySelectorAll('.ct').forEach((b,i) => {
+    b.classList.toggle('active', (i===0 && tab==='qa') || (i===1 && tab==='column'));
+  });
+  document.getElementById('qaContent').style.display = tab==='qa' ? 'block' : 'none';
+  document.getElementById('colContent').style.display = tab==='column' ? 'block' : 'none';
+}
+
+// ============================================================
+// PROGRESS JUMP — click to next unchecked
+// ============================================================
+function jumpNext() {
+  for (const step of steps) {
+    for (let ci = 0; ci < step.checks.length; ci++) {
+      if (!checked[`${step.id}_${ci}`]) {
+        // find and open the card
+        const card = document.querySelector(`[data-sid="${step.id}"]`);
+        if (card) {
+          card.classList.add('open');
+          setTimeout(() => {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }, 100);
+          showToast(`Step ${step.id} へ移動しました`);
+        }
+        return;
+      }
+    }
+  }
+  showToast('すべてのチェックが完了しています 🎉');
+}
+
+// ============================================================
+// DOWNLOAD (print-friendly new window)
+// ============================================================
+function openDownload() {
+  const html = `<!DOCTYPE html>
+<html lang="ja"><head><meta charset="UTF-8">
+<title>アピアランスケア 助成金チェックシート</title>
+<style>
+  body{font-family:'Noto Sans JP',sans-serif;font-size:14px;line-height:1.8;color:#222;padding:24px;max-width:700px;margin:0 auto;}
+  h1{font-size:20px;border-bottom:2px solid #1a7a5a;padding-bottom:8px;margin-bottom:16px;color:#1a7a5a;}
+  h2{font-size:15px;margin:18px 0 8px;color:#5020a0;}
+  .card{background:#f8f5ff;border:1px solid #c0a0ff;border-radius:8px;padding:12px 16px;margin-bottom:12px;}
+  .card h3{font-size:14px;font-weight:700;color:#5020a0;margin-bottom:6px;}
+  .item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+  .box{width:16px;height:16px;border:2px solid #888;border-radius:3px;flex-shrink:0;margin-top:2px;}
+  .warn{background:#fff4e0;border:1px solid #e0a030;border-radius:6px;padding:10px 14px;font-size:12px;color:#7a5010;margin-top:12px;}
+  .ref{margin-top:20px;font-size:12px;color:#888;border-top:1px solid #ddd;padding-top:10px;}
+  @media print{button{display:none!important;}}
+</style>
+</head><body>
+<button onclick="window.print()" style="background:#1a7a5a;color:white;border:none;padding:8px 18px;border-radius:6px;font-size:13px;cursor:pointer;margin-bottom:16px;">🖨️ 印刷する</button>
+<h1>アピアランスケア 助成金申請チェックシート</h1>
+<p style="font-size:12px;color:#888;">がんコンシェルジュ / くん先生 | 情報は定期的に更新されます。必ずお住まいの自治体でご確認ください。</p>
+
+<div class="card">
+  <h3>🧢 医療用ウィッグ（上限 1〜3万円 ※自治体により異なる）</h3>
+  <div class="item"><div class="box"></div><span>お住まいの市区町村に助成制度があるか確認した</span></div>
+  <div class="item"><div class="box"></div><span>申請書類を市区町村窓口またはウェブから入手した</span></div>
+  <div class="item"><div class="box"></div><span>「医療用ウィッグ」と明記された領収書を保管している</span></div>
+  <div class="item"><div class="box"></div><span>抗がん剤・放射線治療の証明書類を用意した（同意書・診断書など）</span></div>
+  <div class="item"><div class="box"></div><span>申請期限（多くは購入から1年以内）を確認した</span></div>
+  <div class="item"><div class="box"></div><span>購入前申請が必要な自治体かどうか確認した ⚠️重要</span></div>
+</div>
+
+<div class="card">
+  <h3>🩹 胸部補整具（上限 1〜2万円 ※ウィッグとは別に申請可）</h3>
+  <div class="item"><div class="box"></div><span>胸部補整具にも助成制度があるか確認した</span></div>
+  <div class="item"><div class="box"></div><span>乳房切除を伴うがん治療の証明書類を用意した</span></div>
+  <div class="item"><div class="box"></div><span>領収書（品名・金額・販売店名・日付・宛名）を保管している</span></div>
+  <div class="item"><div class="box"></div><span>ウィッグとは別の申請書類を入手した</span></div>
+</div>
+
+<div class="card">
+  <h3>📋 申請時の共通必要書類</h3>
+  <div class="item"><div class="box"></div><span>助成金申請書（自治体指定様式）</span></div>
+  <div class="item"><div class="box"></div><span>がん治療の証明書類（診断書・治療計画書・同意書など）</span></div>
+  <div class="item"><div class="box"></div><span>領収書（原本。宛名はフルネーム必須）</span></div>
+  <div class="item"><div class="box"></div><span>振込先口座情報（通帳のコピーなど）</span></div>
+  <div class="item"><div class="box"></div><span>本人確認書類（マイナンバーカード・運転免許証など）</span></div>
+</div>
+
+<div class="warn">
+  ⚠️ 助成制度の内容は自治体によって細部が大きく異なります。金額・申請期限・必要書類などの最新情報は、お住まいの市区町村へ直接お問い合わせください。購入前に確認することを強くお勧めします。
+</div>
+
+<div class="ref">
+  参考：JHD&amp;C 全国自治体助成一覧 https://www.jhdac.org/local_goverment/ | 国立がん研究センター アピアランスケア https://ganjoho.jp/public/support/appearance/index.html
+</div>
+</body></html>`;
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+
+// ============================================================
+// INTERACTIONS
+// ============================================================
+function selSit(btn) {
+  document.querySelectorAll('.sit-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('startBtn').disabled = false;
+}
+
+function startApp() {
+  document.getElementById('sc-welcome').classList.remove('active');
+  document.getElementById('sc-steps').classList.add('active');
+  document.getElementById('bnav').style.display = 'flex';
+  document.getElementById('aiFab').classList.add('show');
+  window.scrollTo(0,0);
+}
+
+function tglSt(hdr) { hdr.closest('.sc').classList.toggle('open'); }
+function tglPb(id) { document.getElementById(`pb${id}`)?.classList.toggle('open'); }
+
+function tglCk(sid, ci) {
+  const k = `${sid}_${ci}`;
+  checked[k] = !checked[k];
+  renderSteps();
+  const card = document.querySelector(`[data-sid="${sid}"]`);
+  if (card) card.classList.add('open');
+  if (checked[k]) showToast('チェックしました ✓');
+}
+
+function saveMemo(sid, val) { memos[sid] = val; }
+
+function cpyS(id) {
+  const s = steps.find(s=>s.id===id);
+  if (s?.panic) navigator.clipboard?.writeText(s.panic.script).then(()=>showToast('コピーしました！'));
+}
+
+function updateProg() {
+  const total = steps.reduce((s,st)=>s+st.checks.length, 0);
+  const done = Object.values(checked).filter(Boolean).length;
+  const pct = Math.round((done/total)*100);
+  document.getElementById('pLbl').textContent = `${done}/${total}`;
+  document.getElementById('pFill').style.width = pct+'%';
+  document.getElementById('bigPct').textContent = pct+'%';
+  document.getElementById('bigFill').style.width = pct+'%';
+}
+
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  ['nav-steps','nav-sources','nav-column'].forEach(n=>{
+    document.getElementById(n)?.classList.remove('active');
+  });
+  const m = {'sc-steps':'nav-steps','sc-sources':'nav-sources','sc-column':'nav-column'};
+  if (m[id]) document.getElementById(m[id]).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function openTriage() { document.getElementById('trModal').classList.add('open'); }
+function closeModal() { document.getElementById('trModal').classList.remove('open'); }
+function closeTOM(e) { if(e.target===document.getElementById('trModal')) closeModal(); }
+
+function openMHModal() { mhAns={}; renderMHModal(); document.getElementById('mhModal').classList.add('open'); }
+function closeMHModal() { document.getElementById('mhModal').classList.remove('open'); }
+function closeMHOM(e) { if(e.target===document.getElementById('mhModal')) closeMHModal(); }
+
+function renderMHModal() {
+  const c = document.getElementById('mhQs');
+  c.innerHTML = mhQuestions.map((q,qi) => `
+    <div class="mh-q">
+      <div class="mh-qt">${qi+1}. ${q.q}</div>
+      <div class="mh-opts">${q.opts.map((o,oi) => `
+        <button class="mh-o ${mhAns[qi]===oi?(oi>=2?'sel-w':'sel'):''}" onclick="selMH(${qi},${oi})">${o}</button>`).join('')}
+      </div>
+    </div>`).join('') + `<button class="btn-go" style="margin-top:11px;" onclick="calcMH()">結果を見る</button>`;
+  document.getElementById('mhRes').classList.remove('show');
+}
+
+function selMH(qi, oi) { mhAns[qi]=oi; renderMHModal(); }
+
+function calcMH() {
+  if (Object.keys(mhAns).length < mhQuestions.length) { showToast('全ての質問に答えてください'); return; }
+  const total = Object.values(mhAns).reduce((s,v)=>s+v, 0);
+  const warn = total >= 7;
+  const r = document.getElementById('mhRes');
+  r.innerHTML = `
+    <div class="mhr-box ${warn?'warn':'ok'}">
+      <div class="mhr-s">${total}点</div>
+      <div class="mhr-l">/ ${(mhQuestions.length-1)*3}点満点</div>
+      <div class="mhr-m">${warn
+        ? '⚠️ <strong>心のサポートが必要な状態かもしれません。</strong>一人で抱え込まないでください。'
+        : '✅ 今のところ比較的安定しているようです。変化には敏感に。定期的にチェックを。'}</div>
+    </div>
+    <div class="mhr-cta">
+      <a class="lb lb-kun" href="https://line.me/R/ti/p/@kun-support" target="_blank">
+        <span class="li">👩‍⚕️</span><div class="lbd"><div class="lt2">くん先生に相談する（LINE）</div><div class="ld">気持ちのことも話せます</div></div>
+      </a>
+      <a class="lb lb-npo" href="https://maggiestokyo.org/" target="_blank">
+        <span class="li">🤝</span><div class="lbd"><div class="lt2">マギーズ東京</div><div class="ld">予約不要・無料・感情サポート</div></div>
+      </a>
+    </div>`;
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// AI
+const aiHist = [];
+function openAI() { document.getElementById('aiPanel').classList.add('open'); document.getElementById('aiFab').classList.remove('show'); }
+function closeAI() { document.getElementById('aiPanel').classList.remove('open'); document.getElementById('aiFab').classList.add('show'); }
+
+async function sendAI() {
+  const inp = document.getElementById('aiInp');
+  const msg = inp.value.trim(); if (!msg) return;
+  addBbl(msg,'user'); inp.value='';
+  document.getElementById('aiSnd').disabled = true;
+  document.getElementById('aiThink').classList.add('show');
+  aiHist.push({role:'user',content:msg});
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:`あなたは「がんコンシェルジュ」のAIアシスタントです。
+
+役割：がん患者・家族・保険担当者の質問に正確・温かく・実務的に回答する。
+専門：高額療養費、傷病手当金、訪問看護、アピアランスケア、ウィッグ・補整具助成金、就労支援、心理サポート。
+回答は簡潔に（200字以内を目安）。くん先生への相談を適切に勧める。
+
+重要な制度情報：
+・高額療養費：月の医療費が限度額超過で払い戻し。限度額適用認定証で事前対応可。
+・傷病手当金：社保加入者対象。最長1年6ヶ月、給与の約2/3。
+・訪問看護：医師の指示書があれば医療保険で利用可。副作用が出る前に申請を。
+・ウィッグ助成金：全国400以上の自治体が独自制度。上限1〜3万円。胸部補整具は別申請可。
+・アピアランスケア：外見変化を支援する医療的ケア。がん拠点病院に相談室あり。
+
+医療診断・特定の治療方針の判断は行いません。「担当医・専門家に相談を」と添えてください。`,
+        messages:aiHist.slice(-8)
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.[0]?.text || '申し訳ありません、うまく回答できませんでした。';
+    aiHist.push({role:'assistant',content:reply});
+    document.getElementById('aiThink').classList.remove('show');
+    addBbl(reply,'ai');
+  } catch(e) {
+    document.getElementById('aiThink').classList.remove('show');
+    addBbl('接続エラーが発生しました。しばらくしてから再度お試しください。','ai');
+  }
+  document.getElementById('aiSnd').disabled = false;
+}
+
+function addBbl(t,who) {
+  const m = document.getElementById('aiMsgs');
+  const b = document.createElement('div');
+  b.className = `ai-bbl ${who}`; b.textContent = t;
+  m.appendChild(b); m.scrollTop = m.scrollHeight;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// INIT
+renderSteps();
+renderSources();
+renderColumn();
+</script>
+</body>
+</html>
