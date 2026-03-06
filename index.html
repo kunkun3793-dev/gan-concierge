@@ -1778,7 +1778,9 @@ async function sendAI() {
   document.getElementById('aiThink').classList.add('show');
   aiHist.push({role:'user',content:msg});
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const PROXY = 'https://corsproxy.io/?url=';
+    const API_URL = 'https://api.anthropic.com/v1/messages';
+    const res = await fetch(PROXY + encodeURIComponent(API_URL),{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':anthropicApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
       body:JSON.stringify({
