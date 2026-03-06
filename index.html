@@ -790,8 +790,8 @@ a.bnv-b:hover{color:#06c755;}
 <div class="apikey-modal" id="apikeyModal">
   <div class="apikey-box">
     <h3>🔑 APIキーを設定</h3>
-    <p>AIを使うにはAnthropicのAPIキーが必要です。<br>入力したキーは<strong>このデバイスに保存</strong>され、次回以降は入力不要です。</p>
-    <input class="apikey-inp" id="apikeyInp" type="password" placeholder="sk-ant-..." />
+    <p>この版ではAPIキー入力を使いません。<br><strong>Cloudflare Worker経由</strong>でAIに接続します。</p>
+    <input class="apikey-inp" id="apikeyInp" type="password" placeholder="Worker版のため入力不要" />
     <div class="apikey-btns">
       <button class="apikey-save" onclick="saveApiKey()">保存して続ける</button>
       <button class="apikey-cancel" onclick="closeApiKeyModal()">キャンセル</button>
@@ -1744,61 +1744,53 @@ function calcMH() {
 
 // AI
 const aiHist = [];
+const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
 function openAI() { document.getElementById('aiPanel').classList.add('open'); }
 function closeAI() { document.getElementById('aiPanel').classList.remove('open'); }
 function sendTemplate(text) { document.getElementById('aiInp').value = text; sendAI(); }
-
-let anthropicApiKey = localStorage.getItem('gan_api_key') || '';
-function openApiKeyModal(cb) {
-  window._apikeyCallback = cb;
-  document.getElementById('apikeyModal').classList.add('open');
-  // 保存済みキーがあれば入力欄に表示
-  const saved = localStorage.getItem('gan_api_key') || '';
-  if (saved) document.getElementById('apikeyInp').value = saved;
-  setTimeout(() => document.getElementById('apikeyInp').focus(), 100);
+function openApiKeyModal() {
+  showToast('この版ではAPIキー入力は使いません');
 }
 function saveApiKey() {
-  const key = document.getElementById('apikeyInp').value.trim();
-  if (!key.startsWith('sk-')) { showToast('APIキーは sk- で始まります'); return; }
-  anthropicApiKey = key;
-  try { localStorage.setItem('gan_api_key', key); } catch {}
-  document.getElementById('apikeyInp').value = '';
-  document.getElementById('apikeyModal').classList.remove('open');
-  showToast('APIキーを保存しました ✓');
-  if (window._apikeyCallback) { window._apikeyCallback(); window._apikeyCallback = null; }
+  showToast('APIキー入力は不要です');
 }
-function closeApiKeyModal() { document.getElementById('apikeyModal').classList.remove('open'); }
+function closeApiKeyModal() {
+  document.getElementById('apikeyModal')?.classList.remove('open');
+}
 
 async function sendAI() {
   const inp = document.getElementById('aiInp');
-  const msg = inp.value.trim(); if (!msg) return;
-  if (!anthropicApiKey) { openApiKeyModal(() => { inp.value = msg; sendAI(); }); return; }
-  addBbl(msg,'user'); inp.value='';
+  const msg = inp.value.trim();
+  if (!msg) return;
+  addBbl(msg,'user');
+  inp.value='';
   document.getElementById('aiSnd').disabled = true;
   document.getElementById('aiThink').classList.add('show');
   aiHist.push({role:'user',content:msg});
+
   try {
-    const PROXY = 'https://corsproxy.io/?url=';
-    const API_URL = 'https://api.anthropic.com/v1/messages';
-    const res = await fetch(PROXY + encodeURIComponent(API_URL),{
+    if (WORKER_URL.includes('YOUR-WORKER-NAME')) {
+      throw new Error('Worker URL を設定してください');
+    }
+
+    const res = await fetch(WORKER_URL, {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':anthropicApiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
-      body:JSON.stringify({
-        model:'claude-haiku-4-5-20251001',max_tokens:1000,
-        system:`あなたは「がんコンシェルジュ」のAIアシスタントです。がん患者・家族・保険担当者の質問に正確・温かく・実務的に回答してください。専門：高額療養費、傷病手当金、訪問看護、アピアランスケア、ウィッグ・補整具助成金、就労支援。回答は200字以内を目安に。医療診断は行わず「担当医に相談を」と添えてください。`,
-        messages:aiHist.slice(-8)
-      })
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ messages: aiHist.slice(-8) })
     });
-    if (res.status === 401) { anthropicApiKey = ''; try { localStorage.removeItem('gan_api_key'); } catch {} throw new Error('APIキーが無効です。再設定してください。'); }
-    const data = await res.json();
-    const reply = data.content?.[0]?.text || '申し訳ありません、うまく回答できませんでした。';
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'AI接続に失敗しました');
+    }
+
+    const reply = data.reply || '申し訳ありません、うまく回答できませんでした。';
     aiHist.push({role:'assistant',content:reply});
     document.getElementById('aiThink').classList.remove('show');
     addBbl(reply,'ai');
   } catch(e) {
     document.getElementById('aiThink').classList.remove('show');
     addBbl('エラー：' + (e.message || '接続できませんでした。しばらく待ってから再試行してください。'),'ai');
-    if (e.message?.includes('APIキー')) openApiKeyModal(() => {});
   }
   document.getElementById('aiSnd').disabled = false;
 }
