@@ -558,6 +558,7 @@ a.bnv-b:hover{color:#06c755;}
         <span class="to-bdg b-urg">LINE直通</span>
       </a>
 
+      <div class="t-opt" onclick="openAI();closeModal()">
         <span class="to-ic">🤖</span>
         <div class="to-b"><div class="to-ti">AIに質問する</div><div class="to-d">制度・手続き・アピアランスケアについて即座に回答します</div></div>
         <span class="to-bdg b-auto">AI応答</span>
@@ -1744,7 +1745,7 @@ function calcMH() {
 
 // AI
 const aiHist = [];
-const WORKER_URL = 'https://gan-concierge.kunkun3793.workers.dev';
+const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
 function openAI() { document.getElementById('aiPanel').classList.add('open'); }
 function closeAI() { document.getElementById('aiPanel').classList.remove('open'); }
 function sendTemplate(text) { document.getElementById('aiInp').value = text; sendAI(); }
@@ -1794,18 +1795,21 @@ async function sendAI() {
   }
   document.getElementById('aiSnd').disabled = false;
 }
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+function addBbl(t,who) {
+  const m = document.getElementById('aiMsgs');
+  const b = document.createElement('div');
+  b.className=`ai-bbl ${who}`; b.textContent=t;
+  m.appendChild(b); m.scrollTop=m.scrollHeight;
 }
 
-const WORKER_URL = "https://floral-bread-a10d.kunkun3793.workers.dev/";
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
 
 // INIT
-const navHome = document.getElementById('nav-home');
-if (navHome) navHome.classList.add('active');
+document.getElementById('nav-home').classList.add('active');
 renderSteps();
 renderSources();
 renderColumn();
