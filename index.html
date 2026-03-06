@@ -219,6 +219,14 @@ html,body{height:100%;overflow:hidden;margin:0;padding:0;}
 
 /* ━━━ COLUMN PAGE ━━━ */
 .col-disclaimer{background:#f8f4ff;border:1px solid rgba(80,32,160,.15);border-radius:8px;padding:11px 13px;font-size:11px;color:var(--pu);line-height:1.7;margin-bottom:18px;}
+.col-hero-row{display:flex;align-items:center;gap:16px;background:var(--tll);border-radius:14px;padding:16px;margin-bottom:16px;}
+.col-hero-left{flex:1;min-width:0;}
+.col-hero-title{font-family:'Noto Serif JP',serif;font-size:19px;font-weight:700;color:var(--tx);margin:0 0 6px;line-height:1.4;}
+.col-hero-sub{font-size:12px;color:var(--mu);margin:0;}
+.col-hero-right{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:5px;width:90px;}
+.col-hero-avatar{width:82px;height:82px;border-radius:50%;object-fit:cover;object-position:center 15%;border:3px solid var(--tl);box-shadow:0 4px 12px rgba(0,0,0,.18);}
+.col-hero-name{font-size:12px;font-weight:700;color:var(--tl);text-align:center;margin-top:2px;}
+.col-hero-role{font-size:10px;color:var(--mu);text-align:center;line-height:1.7;}
 .col-tabs{display:flex;gap:0;border:1.5px solid var(--br);border-radius:10px;overflow:hidden;margin-bottom:16px;}
 .ct{flex:1;padding:9px 4px;background:#fff;border:none;font-size:12px;font-family:'Noto Sans JP',sans-serif;font-weight:500;color:var(--mu);cursor:pointer;transition:all .2s;border-right:1px solid var(--br);}
 .ct:last-child{border-right:none;}
@@ -434,16 +442,20 @@ a.bnv-b:hover{color:#06c755;}
 .ai-inp:focus{border-color:var(--tl);}
 .ai-snd{background:var(--tl);color:#fff;border:none;border-radius:20px;padding:9px 15px;font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;}
 .ai-snd:disabled{background:var(--lt);cursor:not-allowed;}
-.apikey-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
+.apikey-modal{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
 .apikey-modal.open{display:flex;}
-.apikey-box{background:#fff;border-radius:16px;padding:24px 20px;width:100%;max-width:340px;}
-.apikey-box h3{font-size:15px;font-weight:700;margin:0 0 8px;color:var(--tx);}
-.apikey-box p{font-size:12px;color:var(--mu);margin:0 0 14px;line-height:1.6;}
-.apikey-inp{width:100%;border:1.5px solid var(--br);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;box-sizing:border-box;margin-bottom:12px;}
+.apikey-box{background:#fff;border-radius:16px;padding:24px 20px;width:100%;max-width:360px;}
+.apikey-box h3{font-size:15px;font-weight:700;margin:0 0 6px;color:var(--tx);}
+.apikey-box p{font-size:12px;color:var(--mu);margin:0 0 14px;line-height:1.7;}
+.apikey-box .ak-note{font-size:11px;color:var(--tl);background:var(--tll);border-radius:6px;padding:8px 10px;margin-bottom:12px;line-height:1.6;}
+.apikey-inp{width:100%;border:1.5px solid var(--br);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Mono',monospace;outline:none;box-sizing:border-box;margin-bottom:12px;letter-spacing:.5px;}
 .apikey-inp:focus{border-color:var(--tl);}
 .apikey-btns{display:flex;gap:8px;}
 .apikey-save{flex:1;background:var(--tl);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;}
 .apikey-cancel{background:#f5f5f5;color:var(--mu);border:none;border-radius:8px;padding:10px 14px;font-size:13px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;}
+.ak-status{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:16px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .2s;white-space:nowrap;}
+.ak-status.set{background:#edfaf4;color:var(--tl);border-color:rgba(26,122,90,.25);}
+.ak-status.unset{background:#fff3ef;color:var(--p0);border-color:rgba(196,58,8,.25);animation:pulse 2.5s infinite;}
 
 </style>
 </head>
@@ -471,7 +483,7 @@ a.bnv-b:hover{color:#06c755;}
     <button onclick="startApp()" style="background:var(--tl);color:#fff;width:100%;max-width:340px;padding:18px;border:none;border-radius:14px;font-size:18px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;box-shadow:0 4px 16px rgba(26,122,90,.3);letter-spacing:.5px;">まずここから（診断直後）→</button>
     <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px;">
       <span style="font-size:12px;color:#999;background:#f5f5f3;padding:5px 10px;border-radius:20px;">✦ 相談窓口の電話スクリプト入り</span>
-      <span style="font-size:12px;color:#999;background:#f5f5f3;padding:5px 10px;border-radius:20px;">✦ AIにいつでも質問可能</span>
+
       <span style="font-size:12px;color:#999;background:#f5f5f3;padding:5px 10px;border-radius:20px;">✦ 進捗は自動保存</span>
     </div>
   </div>
@@ -520,20 +532,24 @@ a.bnv-b:hover{color:#06c755;}
 
 <!-- ★ COLUMN PAGE -->
 <div class="screen" id="sc-column">
-  <div class="sec-hdr">
-    <span class="sec-tag">📝 コラム・Q&amp;A</span>
-    <h2>くんちゃんの<br>コラムとQ&amp;A</h2>
-    <p>知っておきたい情報を整理しています。</p>
+  <div class="col-hero-row">
+    <div class="col-hero-left">
+      <span class="sec-tag">📝 コラム・Q&amp;A</span>
+      <h2 class="col-hero-title">くんちゃんの<br>コラムとQ&amp;A</h2>
+      <p class="col-hero-sub">知っておきたい情報を整理しています。</p>
+    </div>
   </div>
   <div class="col-disclaimer">
     ⚠️ このコラムは<strong>情報提供を目的</strong>としており、個別の医療・保険・法律アドバイスではありません。具体的な判断は、担当医・保険担当者・専門家にご相談ください。
   </div>
   <div class="col-tabs">
-    <button class="ct active" data-tab="column" onclick="switchColTab('column')">📝 コラム</button>
+    <button class="ct active" data-tab="column" onclick="switchColTab('column')">コラム</button>
     <button class="ct" data-tab="qa" onclick="switchColTab('qa')">Q&amp;A</button>
+    <button class="ct" data-tab="profile" onclick="switchColTab('profile')">自己紹介</button>
   </div>
   <div id="colContent"></div>
   <div id="qaContent" style="display:none;"></div>
+  <div id="profileContent" style="display:none;"></div>
 </div>
 
 <!-- COLUMN MODAL -->
@@ -558,6 +574,7 @@ a.bnv-b:hover{color:#06c755;}
         <span class="to-bdg b-urg">LINE直通</span>
       </a>
 
+      <div class="t-opt" onclick="openAI();closeModal()">
         <span class="to-ic">🤖</span>
         <div class="to-b"><div class="to-ti">AIに質問する</div><div class="to-d">制度・手続き・アピアランスケアについて即座に回答します</div></div>
         <span class="to-bdg b-auto">AI応答</span>
@@ -757,48 +774,11 @@ a.bnv-b:hover{color:#06c755;}
 <nav class="bnav" id="bnav">
   <button class="bnv-b" id="nav-home" onclick="goHome()"><span class="bi">🏠</span><span class="bl">ホーム</span></button>
   <button class="bnv-b" id="nav-column" onclick="goTo('sc-column')"><span class="bi">📝</span><span class="bl">コラム</span></button>
-  <button class="bnv-b" id="nav-ai" onclick="openAI()"><span class="bi">🤖</span><span class="bl">AI相談</span></button>
-  <button class="bnv-b" id="nav-line" onclick="goTo('sc-line')"><span class="bi" style="display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="#06c755"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg></span><span class="bl">相談</span></button>
+  <button class="bnv-b" id="nav-ai" onclick="window.open('https://lin.ee/fPTqi76','_blank')" style="color:#06c755;"><span class="bi"><svg width="20" height="20" viewBox="0 0 24 24" fill="#06c755"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg></span><span class="bl">LINE相談</span></button>
+  <button class="bnv-b" id="nav-line" onclick="goTo('sc-sources')"><span class="bi">📋</span><span class="bl">相談窓口</span></button>
 </nav>
 
 <div class="toast" id="toast"></div>
-
-<div class="ai-panel" id="aiPanel">
-  <div class="ai-ph">
-    <div><div class="ai-pt">🤖 がんコンシェルジュ AI</div><div class="ai-ps">制度・手続き・アピアランスケアについて質問できます</div></div>
-    <button class="ai-cl" onclick="closeAI()">✕</button>
-  </div>
-  <div class="ai-tmpl">
-    <div class="ai-tmpl-lbl">よく使われる質問 — タップで送信</div>
-    <button class="ai-t" onclick="sendTemplate('診断されたばかりです。まず何をすればいいですか？')">😔 何から始めれば？</button>
-    <button class="ai-t" onclick="sendTemplate('高額療養費制度の使い方を教えてください')">💊 治療費が心配</button>
-    <button class="ai-t" onclick="sendTemplate('治療しながら働き続けるための制度を教えてください')">💼 仕事を続けられるか</button>
-    <button class="ai-t" onclick="sendTemplate('ウィッグの助成金と準備のタイミングを教えてください')">🧢 脱毛への備え</button>
-    <button class="ai-t" onclick="sendTemplate('家族ががんになりました。私にできることを教えてください')">👨‍👩‍👧 家族として何ができるか</button>
-    <button class="ai-t" onclick="sendTemplate('知人・職場の同僚ががんになりました。どう接すればいいですか？')">🤝 知人・職場の人としてどう接するか</button>
-  </div>
-  <div class="ai-msgs" id="aiMsgs">
-    <div class="ai-bbl ai">こんにちは。制度のこと、手続きのこと、アピアランスケアのこと、何でも聞いてください。上のボタンからもすぐ質問できます。</div>
-  </div>
-  <div class="ai-think" id="aiThink">考えています…</div>
-  <div class="ai-ia">
-    <input class="ai-inp" id="aiInp" placeholder="質問を入力してください" onkeydown="if(event.key==='Enter')sendAI()">
-    <button class="ai-snd" id="aiSnd" onclick="sendAI()">送信</button>
-  </div>
-</div>
-
-<div class="apikey-modal" id="apikeyModal">
-  <div class="apikey-box">
-    <h3>🔑 APIキーを設定</h3>
-    <p>この版ではAPIキー入力を使いません。<br><strong>Cloudflare Worker経由</strong>でAIに接続します。</p>
-    <input class="apikey-inp" id="apikeyInp" type="password" placeholder="Worker版のため入力不要" />
-    <div class="apikey-btns">
-      <button class="apikey-save" onclick="saveApiKey()">保存して続ける</button>
-      <button class="apikey-cancel" onclick="closeApiKeyModal()">キャンセル</button>
-    </div>
-  </div>
-</div>
-
 
 <script>
 // ============================================================
@@ -1409,11 +1389,75 @@ function tglQA(i) {
 }
 
 function switchColTab(tab) {
-  document.querySelectorAll('.ct').forEach((b,i) => {
-    b.classList.toggle('active', (i===0 && tab==='column') || (i===1 && tab==='qa'));
+  document.querySelectorAll('.ct').forEach((b) => {
+    b.classList.toggle('active',
+      (b.dataset.tab === tab));
   });
   document.getElementById('colContent').style.display = tab==='column' ? 'block' : 'none';
   document.getElementById('qaContent').style.display = tab==='qa' ? 'block' : 'none';
+  document.getElementById('profileContent').style.display = tab==='profile' ? 'block' : 'none';
+  if(tab==='profile') renderProfileTab();
+}
+
+function renderProfileTab() {
+  const el = document.getElementById('profileContent');
+  if(el.innerHTML) return;
+  // 写真は ln-avatar から取得
+  const avatarSrc = document.querySelector('.ln-avatar')?.src || '';
+  el.innerHTML = `
+    <div style="padding:4px 0 16px;">
+      <div style="display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,#0e5c40 0%,#1a7a5a 100%);border-radius:14px;padding:18px;margin-bottom:18px;">
+        <img src="${avatarSrc}" style="width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:center 15%;border:3px solid rgba(255,255,255,.7);flex-shrink:0;" alt="阪本久美子"/>
+        <div>
+          <div style="color:#fff;font-size:16px;font-weight:700;font-family:'Noto Serif JP',serif;">阪本 久美子</div>
+          <div style="color:rgba(255,255,255,.85);font-size:11px;margin-top:2px;">くんちゃん</div>
+          <div style="color:rgba(255,255,255,.8);font-size:10px;margin-top:4px;line-height:1.5;">がんサバイバー<br>アピアランスケア支援専門家</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-size:13px;font-weight:700;color:var(--tl);margin-bottom:8px;">💬 使命</div>
+        <div style="background:var(--tll);border-left:3px solid var(--tl);border-radius:0 8px 8px 0;padding:13px 15px;font-size:13px;line-height:1.9;color:var(--tx);">
+          「がんになった人が、<strong>「不安と孤独」を「安心」</strong>に感じられる社会をつくりたい。」<br><br>
+          そのために、保険コンサルタント様を<strong>「人生の支え役」</strong>に導きます。
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-size:13px;font-weight:700;color:var(--tl);margin-bottom:8px;">🌿 私の経験</div>
+        <div style="font-size:13px;color:var(--mu);line-height:1.9;">
+          私は、2度のがんを経験しました。<br>
+          その中で強く感じたのは、<br>
+          <strong>「病院は治療を支えてくれるが、生活や心までは守れない」</strong><br>
+          という現実です。<br><br>
+          告知された瞬間から、多くの方が「まさか…」という不安の中で生き始めます。<br><br>
+          がんには、外から見えない傷があります。<br>
+          手術痕が残らなくても、治療が順調でも——<br>
+          心の時計は、診断された日から止まったままのことがある。<br><br>
+          その<strong>「見えない傷口」</strong>に、周りはなかなか気づけません。<br><br>
+          そのとき、最も身近な存在である保険担当者さんが<br>
+          「人生の支え役」だったら——どれほど心強いでしょうか。<br>
+          この活動は、その思いから生まれました。
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-size:13px;font-weight:700;color:var(--tl);margin-bottom:8px;">📋 活動内容</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <span style="background:var(--tll);color:var(--tl);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;">🏥 大阪国際がんセンター 相談ボランティア</span>
+          <span style="background:var(--tll);color:var(--tl);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;">💄 アピアランスケア支援</span>
+          <span style="background:var(--tll);color:var(--tl);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;">📚 患者支援ガイドブック 制作中</span>
+          <span style="background:var(--tll);color:var(--tl);padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;">🎗️ アピアランスケア協会 設立準備中</span>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:18px;">
+        <a href="https://lin.ee/fPTqi76" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:#06c755;color:#fff;padding:13px 28px;border-radius:25px;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 4px 12px rgba(6,199,85,.3);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/></svg>
+          くんちゃんにLINE相談
+        </a>
+      </div>
+    </div>`;
 }
 
 // ============================================================
@@ -1692,6 +1736,12 @@ function goTo(id) {
   });
   const m = {'sc-sources':'nav-sources','sc-column':'nav-column','sc-profile':'nav-profile','sc-line':'nav-line'};
   if (m[id]) document.getElementById(m[id])?.classList.add('active');
+  // コラムページの写真をコピー
+  if(id==='sc-column'){
+    const src = document.querySelector('.ln-avatar')?.src;
+    const colAvatar = document.getElementById('colHeroAvatar');
+    if(src && colAvatar && !colAvatar.src) colAvatar.src = src;
+  }
 }
 
 function openTriage() { document.getElementById('trModal').classList.add('open'); }
@@ -1742,64 +1792,22 @@ function calcMH() {
 }
 
 
-// AI
-const aiHist = [];
-const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
-function openAI() { document.getElementById('aiPanel').classList.add('open'); }
-function closeAI() { document.getElementById('aiPanel').classList.remove('open'); }
-function sendTemplate(text) { document.getElementById('aiInp').value = text; sendAI(); }
-function openApiKeyModal() {
-  showToast('この版ではAPIキー入力は使いません');
-}
-function saveApiKey() {
-  showToast('APIキー入力は不要です');
-}
-function closeApiKeyModal() {
-  document.getElementById('apikeyModal')?.classList.remove('open');
-}
+// ============================================================
+// AI — Cloudflare Worker 方式
+// ▼ WorkerをデプロイしたらここのURLを書き換えてください ▼
+// ============================================================
 
-async function sendAI() {
-  const inp = document.getElementById('aiInp');
-  const msg = inp.value.trim();
-  if (!msg) return;
-  addBbl(msg,'user');
-  inp.value='';
-  document.getElementById('aiSnd').disabled = true;
-  document.getElementById('aiThink').classList.add('show');
-  aiHist.push({role:'user',content:msg});
+// ============================================================
 
-  try {
-    if (WORKER_URL.includes('YOUR-WORKER-NAME')) {
-      throw new Error('Worker URL を設定してください');
-    }
-
-    const res = await fetch(WORKER_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ messages: aiHist.slice(-8) })
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.error || 'AI接続に失敗しました');
-    }
-
-    const reply = data.reply || '申し訳ありません、うまく回答できませんでした。';
-    aiHist.push({role:'assistant',content:reply});
-    document.getElementById('aiThink').classList.remove('show');
-    addBbl(reply,'ai');
-  } catch(e) {
-    document.getElementById('aiThink').classList.remove('show');
-    addBbl('エラー：' + (e.message || '接続できませんでした。しばらく待ってから再試行してください。'),'ai');
-  }
-  document.getElementById('aiSnd').disabled = false;
-}
-function addBbl(t,who) {
-  const m = document.getElementById('aiMsgs');
-  const b = document.createElement('div');
-  b.className=`ai-bbl ${who}`; b.textContent=t;
-  m.appendChild(b); m.scrollTop=m.scrollHeight;
-}
+// AI機能はLINE相談に統合
+function openAI() { window.open('https://lin.ee/fPTqi76','_blank'); }
+function closeAI() {}
+function sendAI() {}
+function sendTemplate() {}
+function openApiKeyModal() {}
+function saveApiKey() {}
+function closeApiKeyModal() {}
+function addBbl() {}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1812,6 +1820,12 @@ document.getElementById('nav-home').classList.add('active');
 renderSteps();
 renderSources();
 renderColumn();
+// コラムページのヘッダー写真をセット
+(function(){
+  const src = document.querySelector('.ln-avatar')?.src;
+  const img = document.getElementById('colHeroAvatar');
+  if(src && img) img.src = src;
+})();
 </script>
 </body>
 </html>
