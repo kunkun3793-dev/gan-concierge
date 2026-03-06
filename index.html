@@ -1794,21 +1794,18 @@ async function sendAI() {
   }
   document.getElementById('aiSnd').disabled = false;
 }
-function addBbl(t,who) {
-  const m = document.getElementById('aiMsgs');
-  const b = document.createElement('div');
-  b.className=`ai-bbl ${who}`; b.textContent=t;
-  m.appendChild(b); m.scrollTop=m.scrollHeight;
-}
-
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
 }
-  const WORKER_URL = "https://floral-bread-a10d.kunkun3793.workers.dev/";
+
+const WORKER_URL = "https://floral-bread-a10d.kunkun3793.workers.dev/";
+
 // INIT
-document.getElementById('nav-home').classList.add('active');
+const navHome = document.getElementById('nav-home');
+if (navHome) navHome.classList.add('active');
 renderSteps();
 renderSources();
 renderColumn();
