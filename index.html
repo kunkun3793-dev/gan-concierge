@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -711,7 +712,7 @@ a.bnv-b:hover{color:#06c755;}
   <div class="ln-section">
     <div class="ln-sec-title">🔗 このアプリをシェア</div>
     <div class="ln-share-row">
-      <button class="ln-share-btn" style="background:#06c755;color:#fff;border:none;font-size:15px;font-weight:700;" onclick="shareApp('line')">📲 LINEで友達に教える</button>
+      <button class="ln-share-btn" style="background:#06c755;color:#fff;border:none;font-size:15px;font-weight:700;" onclick="shareApp()">📤 このアプリをシェアする</button>
     </div>
   </div>
 
@@ -789,7 +790,7 @@ a.bnv-b:hover{color:#06c755;}
   <div class="pf-section">
     <div class="pf-sec-title" style="font-size:15px;">🔗 シェア・つながる</div>
     <div class="pf-share-row">
-      <button class="pf-share-btn line" style="flex:none;width:100%;padding:14px;font-size:15px;" onclick="shareApp('line')"><span>📲</span>LINEで友達に教える</button>
+      <button class="pf-share-btn line" style="flex:none;width:100%;padding:14px;font-size:15px;" onclick="shareApp()"><span>📤</span>このアプリをシェアする</button>
     </div>
     <div class="pf-share-note">「このアプリ、役に立つよ」と周りの人に伝えてください</div>
   </div>
@@ -915,23 +916,7 @@ const steps = [
      {tp:'gov',ic:'🏛️',t:'傷病手当金（協会けんぽ）',d:'申請書ダウンロードも可',u:'https://www.kyoukaikenpo.or.jp/g3/cat315/sb3040/r139/'},
    ],panic:null,memo:false},
 
-  {id:8,ph:1,divPh:null,timing:"治療開始前",
-   title:"アピアランスケアの準備",sub:"外見の変化に備える",
-   desc:"治療による外見の変化（脱毛・爪・肌など）に事前に備えることができます。助成金制度を活用することで費用負担を減らせます。",
-   checks:[
-     {t:"外見変化について担当医から説明を受けた",s:"脱毛・爪・肌・体重変化など"},
-     {t:"お住まいの自治体の助成金制度を調べた",s:"ウィッグ・胸部補整具は別々に申請可能"},
-   ],
-   links:[
-     {tp:'gov',ic:'📋',t:'ウィッグ助成金 自治体一覧（JHD&C）',d:'購入前に必ずご確認を',u:'https://www.jhdac.org/local_goverment/'},
-     {tp:'dl',ic:'⬇️',t:'助成金チェックシートをダウンロード',d:'印刷対応',u:'https://www.jhdac.org/local_goverment/'},
-     {tp:'col',ic:'📝',t:'くんちゃんコラム：アピアランスケアを「美容の話」と思っていませんか？',d:'コラムページへ',u:'#',colIndex:2},
-     {tp:'salon',ic:'✂️',t:'提携アピアランスケアサロン',d:'🔜 準備中 — まもなく掲載予定',u:'#',onclick:'showToast("提携サロン情報は準備中です")'},
-     {tp:'kun',ic:'👩‍⚕️',t:'くんちゃんにLINEで相談',d:'アピアランスケア専門家として直接アドバイス',u:'https://lin.ee/fPTqi76'},
-   ],
-   subsidy:false,panic:null,memo:false,wigCheck:true},
-
-  {id:9,ph:1,divPh:null,timing:"治療開始前に申請（重要）",
+  {id:8,ph:1,divPh:null,timing:"治療開始前に申請（重要）",
    title:"訪問看護・在宅サービスの申請",sub:"一人暮らしの方は特に重要です",
    desc:"「私は大丈夫」と思っていても、抗がん剤の副作用はいつ出るか分かりません。主治医に「必要ですか？」と聞くと、ほぼ「大丈夫ですよ」と言われます。<strong>聞き方を変えてください。「申請したいので指示書をお願いします」と伝えることが重要です。</strong>それだけで使えるようになります。",
    checks:[
@@ -941,12 +926,26 @@ const steps = [
    ],
    links:[
      {tp:'gov',ic:'🏛️',t:'訪問看護ステーション検索',d:'公益財団法人日本訪問看護財団',u:'https://www.jvnf.or.jp/home/station-search'},
-     {tp:'col',ic:'📝',t:'くんちゃんコラム：「まだ大丈夫」は禁物です',d:'コラムページへ',u:'#',colIndex:0},
    ],
    panic:{title:"😰 主治医への正しい伝え方（これで伝えてください）",
     script:`先生、少しよろしいでしょうか。\n治療中に一人になる時間が長いため、\n訪問看護を申請したいと思っています。\n「訪問看護指示書」を書いていただけますか？`,
     tips:["「必要ですか？」と聞かない。「申請したい」と伝えることがポイントです","医師は必要性を判断する立場ですが、患者が希望すれば指示書を書く義務があります","断られた場合は「がん相談支援センター」に相談してください"]},
    memo:true},
+
+  {id:9,ph:1,divPh:null,timing:"治療開始前",
+   title:"アピアランスケアの準備",sub:"外見の変化に備える",
+   desc:"治療による外見の変化（脱毛・爪・肌など）に事前に備えることができます。助成金制度を活用することで費用負担を減らせます。",
+   checks:[
+     {t:"外見変化について担当医から説明を受けた",s:"脱毛・爪・肌・体重変化など"},
+     {t:"お住まいの自治体の助成金制度を調べた",s:"ウィッグ・胸部補整具は別々に申請可能"},
+   ],
+   links:[
+     {tp:'gov',ic:'📋',t:'ウィッグ助成金 自治体一覧（JHD&C）',d:'購入前に必ずご確認を',u:'https://www.jhdac.org/local_goverment/'},
+     {tp:'dl',ic:'⬇️',t:'助成金チェックシートをダウンロード',d:'印刷対応',u:'https://www.jhdac.org/local_goverment/'},
+     {tp:'salon',ic:'✂️',t:'提携アピアランスケアサロン',d:'🔜 準備中 — まもなく掲載予定',u:'#',onclick:'showToast("提携サロン情報は準備中です")'},
+     {tp:'kun',ic:'👩‍⚕️',t:'くんちゃんにLINEで相談',d:'アピアランスケア専門家として直接アドバイス',u:'https://lin.ee/fPTqi76'},
+   ],
+   subsidy:false,panic:null,memo:false,wigCheck:true},
 
   {id:10,ph:2,divPh:2,timing:"治療中〜後（継続的に）",
    title:"こころの状態を確認する",sub:"気づかないうちに落ちていることがあります",
@@ -978,7 +977,6 @@ const steps = [
      {t:"会社の産業医・人事と段階的復帰プランを話し合った",s:"試し出勤・時短から始める"},
    ],
    links:[
-     {tp:'col',ic:'📝',t:'くんちゃんコラム：傷病手当が終わるとき',d:'コラムページへ',u:'#',colIndex:1},
      {tp:'kun',ic:'👩‍⚕️',t:'くんちゃんにLINEで相談',d:'復帰タイミングの判断を一緒に考えます',u:'https://lin.ee/fPTqi76'},
    ],
    returnCheck:true,panic:null,memo:false},
@@ -1028,8 +1026,7 @@ const qaData = [
    ・一人暮らしの方<br>
    ・日中一人になる時間が長い方<br>
    ・抗がん剤治療中の方（副作用が急に出ることがある）<br><br>
-   副作用が出てから申請しようとすると時間がかかります。<strong>「まだ大丈夫」と思っていても治療前に準備しておくことを強くお勧めします。</strong>`,
-   cta:[{ic:'📝',t:'くんちゃんコラムを読む',d:'なぜ今すぐ申請が必要なのか',u:'#',tp:'col',onclick:"goTo('sc-column');switchColTab('column')"}]},
+   副作用が出てから申請しようとすると時間がかかります。<strong>「まだ大丈夫」と思っていても治療前に準備しておくことを強くお勧めします。</strong>`},
   {q:"職場への報告はどこまで伝えればいいですか？",
    a:`これは非常によく聞かれる質問です。一般的な情報としてお伝えします。<br><br>
    <strong>伝える義務はありません。</strong>ただし、休職・配慮をお願いする場合は「治療が必要な病気にかかった」という事実は伝える必要があります。<br><br>
@@ -1437,6 +1434,25 @@ function renderSteps() {
 
     tl.appendChild(card);
   });
+
+  // ── 締めのメッセージ ──
+  const closing = document.createElement('div');
+  closing.style.cssText = 'margin:32px 16px 48px;padding:28px 24px;background:linear-gradient(135deg,#1a7a5a 0%,#2d9e73 100%);border-radius:16px;text-align:center;color:#fff;';
+  closing.innerHTML = `
+    <div style="font-size:22px;margin-bottom:12px;">🌿</div>
+    <div style="font-size:17px;font-weight:700;line-height:1.7;margin-bottom:16px;">ここまでたどり着いたあなたへ</div>
+    <div style="font-size:14px;line-height:2;opacity:0.95;">
+      一つひとつ確認できたことは<br>
+      あなたが自分を守ろうとした証拠です。<br><br>
+      焦らなくていい。<br>
+      完璧でなくていい。<br><br>
+      また確認したいときは<br>
+      いつでも戻ってきてください。
+    </div>
+    <div style="margin-top:20px;font-size:13px;opacity:0.85;font-weight:600;">くんちゃん 🎗️</div>
+    <button onclick="goTo('sc-line')" style="margin-top:20px;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.6);color:#fff;border-radius:24px;padding:10px 24px;font-size:14px;font-weight:700;font-family:'Noto Sans JP',sans-serif;cursor:pointer;">💬 くんちゃんに相談する</button>
+  `;
+  tl.appendChild(closing);
 
   updateProg();
 }
@@ -2029,15 +2045,24 @@ function tglTraining() {
   d.style.display = d.style.display === 'none' ? 'block' : 'none';
 }
 
-function shareApp(type) {
-  const url = location.href;
+function shareApp() {
+  const url = 'https://kunkun3793-dev.github.io/gan-concierge/';
   const txt = 'がん診断後の手続き・制度・アピアランスケアをまとめたアプリです。役立ててください。';
-  if (type === 'line') {
-    window.open(`https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(txt)}`, '_blank');
-  } else if (type === 'twitter') {
-    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(txt)}`, '_blank');
-  } else if (type === 'copy') {
-    navigator.clipboard?.writeText(url).then(() => showToast('URLをコピーしました！'));
+  function copyFallback() {
+    navigator.clipboard?.writeText(url).then(() => {
+      showToast('📋 URLをコピーしました！');
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = url; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta);
+      showToast('📋 URLをコピーしました！');
+    });
+  }
+  if (navigator.share) {
+    navigator.share({ title: 'がんコンシェルジュ', text: txt, url: url })
+      .catch(() => copyFallback());
+  } else {
+    copyFallback();
   }
 }
 
