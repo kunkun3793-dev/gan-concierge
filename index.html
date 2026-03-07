@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
-  --bg:#f8f6f2; --sf:#fff; --sf2:#f2eeea; --br:#e5ded5;
+  --bg:#f5f5f5; --sf:#fff; --sf2:#efefef; --br:#e0dbd5;
   --tx:#26211c; --mu:#8a7d72; --lt:#b5a99e;
   --p0:#c43a08; --p0l:#fff3ef; --p0b:rgba(196,58,8,.15);
   --p1:#1a5fbf; --p1l:#edf3ff; --p1b:rgba(26,95,191,.15);
@@ -574,11 +574,7 @@ a.bnv-b:hover{color:#06c755;}
         <span class="to-bdg b-urg">LINE直通</span>
       </a>
 
-      <div class="t-opt" onclick="openAI();closeModal()">
-        <span class="to-ic">🤖</span>
-        <div class="to-b"><div class="to-ti">AIに質問する</div><div class="to-d">制度・手続き・アピアランスケアについて即座に回答します</div></div>
-        <span class="to-bdg b-auto">AI応答</span>
-      </div>
+
       <a class="t-opt" href="https://hospdb.ganjoho.jp/kyoten/kyotenlist" target="_blank">
         <span class="to-ic">🏥</span>
         <div class="to-b"><div class="to-ti">最寄りのがん相談支援センターへ</div><div class="to-d">全国無料。受診中の病院以外でも利用OK</div></div>
@@ -747,7 +743,7 @@ a.bnv-b:hover{color:#06c755;}
       <div class="pf-item"><span class="pf-ic">🏥</span><div><div class="pf-it" style="font-size:14px;"><a href="https://oici.jp/hospital/" target="_blank" style="color:var(--tl);text-decoration:none;">大阪国際がんセンター アピアランスケアサポート ↗</a></div><div class="pf-id" style="font-size:13px;">ステージ３以下・通院治療患者の情報支援</div></div></div>
       <div class="pf-item"><span class="pf-ic">👩‍💼</span><div><div class="pf-it" style="font-size:14px;">保険会社・代理店向け研修 <span class="pf-badge" style="background:#e8f4ff;color:#1a5fa8;">賛同企業募集中</span></div><div class="pf-id" style="font-size:13px;">がん保険「選ばれる力」実務講座 — 研修内容は下記でご確認いただけます</div><button onclick="tglTraining()" style="margin-top:6px;background:var(--tll);border:none;color:var(--tl);font-size:12px;font-weight:700;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;">研修内容を見る ▾</button><div id="trainingDetail" style="display:none;margin-top:8px;background:#fff;border:1px solid var(--br);border-radius:8px;padding:12px 14px;font-size:13px;line-height:2;color:var(--mu);">
         <strong style="color:var(--tx);font-size:14px;">3つの「まさか」に備える がん保険「選ばれる力」実務講座</strong><br>
-        AIが調べる。人間が寄り添う。それが「選ばれる担当者」の正体です。<br><br>
+
         ■ 対象：保険会社・代理店の営業担当者<br>
         ■ 内容：アピアランスケア基礎 ／ 患者支援制度 ／ 就労支援 ／ 伴走力トレーニング<br>
         ■ 特徴：2度のがん経験を持つ講師による実践的研修<br><br>
@@ -1381,7 +1377,16 @@ function renderColumn() {
           <span style="font-size:12px;opacity:.6;">→</span>
         </a>
       </div>
-    </div>`).join('');
+    </div>`).join('') + `
+  <div style="margin-top:20px;background:linear-gradient(135deg,#f0faf5,#e8f7f0);border:1.5px solid rgba(26,122,90,.2);border-radius:14px;padding:18px 16px;text-align:center;">
+    <div style="font-size:22px;margin-bottom:6px;">📚</div>
+    <div style="font-weight:700;font-size:15px;color:var(--tx);margin-bottom:4px;">コラムをもっと読む</div>
+    <div style="font-size:13px;color:var(--mu);margin-bottom:14px;">noteにてすべてのコラムを公開しています</div>
+    <a href="https://note.com/kunkun935" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:var(--tl);color:#fff;border-radius:9px;padding:11px 22px;text-decoration:none;font-size:14px;font-weight:700;">
+      <span>noteで読む</span>
+      <span style="font-size:12px;opacity:.8;">→</span>
+    </a>
+  </div>`;
 }
 
 function tglQA(i) {
