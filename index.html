@@ -2169,12 +2169,17 @@ document.getElementById('nav-home').classList.add('active');
 renderSteps();
 renderSources();
 renderColumn();
-  const hash = location.hash;
+const hash = location.hash;
 
-if(hash === "#appearance"){
-  setTimeout(()=>{
-    document.querySelector('[data-step="9"]').scrollIntoView({behavior:"smooth"});
-  },500);
+if (hash === "#appearance") {
+  setTimeout(() => {
+    const el = [...document.querySelectorAll('#stepsWrap *')]
+      .find(el => el.textContent.includes('アピアランスケアの準備'));
+
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, 1000);
 }
 // コラムページのヘッダー写真をセット
 (function(){
