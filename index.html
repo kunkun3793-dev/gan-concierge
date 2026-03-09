@@ -2169,6 +2169,13 @@ document.getElementById('nav-home').classList.add('active');
 renderSteps();
 renderSources();
 renderColumn();
+  const hash = location.hash;
+
+if(hash === "#appearance"){
+  setTimeout(()=>{
+    document.querySelector('[data-step="9"]').scrollIntoView({behavior:"smooth"});
+  },500);
+}
 // コラムページのヘッダー写真をセット
 (function(){
   const src = document.querySelector('.ln-avatar')?.src;
