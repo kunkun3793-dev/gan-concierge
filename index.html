@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -2083,7 +2084,7 @@ function goTo(id) {
   ['nav-home','nav-column','nav-ai','nav-line'].forEach(n=>{
     document.getElementById(n)?.classList.remove('active');
   });
-  const m = {'sc-sources':'nav-sources','sc-column':'nav-column','sc-profile':'nav-profile','sc-line':'nav-line'};
+  const m = {'sc-sources':'nav-sources','sc-column':'nav-column','sc-profile':'nav-profile','sc-line':'nav-line','sc-steps':'nav-home'};
   if (m[id]) document.getElementById(m[id])?.classList.add('active');
   // コラムページの写真をコピー
   if(id==='sc-column'){
@@ -2169,18 +2170,22 @@ document.getElementById('nav-home').classList.add('active');
 renderSteps();
 renderSources();
 renderColumn();
-const hash = location.hash;
-
-if (hash === "#appearance") {
+// ディープリンク: ?step=N でステップに直接ジャンプ
+(function(){
+  const sid = new URLSearchParams(location.search).get('step');
+  if (!sid) return;
   setTimeout(() => {
-    const el = [...document.querySelectorAll('#stepsWrap *')]
-      .find(el => el.textContent.includes('アピアランスケアの準備'));
-
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, 1000);
-}
+    goTo('sc-steps');
+    setTimeout(() => {
+      const card = document.querySelector('[data-sid="' + sid + '"]');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.style.outline = '3px solid var(--gr)';
+        setTimeout(() => card.style.outline = '', 2500);
+      }
+    }, 500);
+  }, 300);
+})();
 // コラムページのヘッダー写真をセット
 (function(){
   const src = document.querySelector('.ln-avatar')?.src;
