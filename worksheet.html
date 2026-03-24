@@ -1,4 +1,3 @@
-[worksheet_full.html](https://github.com/user-attachments/files/26207678/worksheet_full.html)
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -1322,12 +1321,12 @@ function loadHistory(id){
     </div>`).join('');
 }
 
+// ===== TODO functions =====
+let todos = JSON.parse(localStorage.getItem('todos')||'[]');
+
 // Initial history load
 loadHistory('A');
 renderTodos();
-
-// ===== TODO functions =====
-let todos = JSON.parse(localStorage.getItem('todos')||'[]');
 
 function renderTodos(){
   const el=document.getElementById('sE_todo_list');
